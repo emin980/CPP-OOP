@@ -1,0 +1,4003 @@
+Nesne Yönelimli Programlama
+
+Vize Ödev Proje Teslimi
+
+1: Muhammet Dinç 330062
+2: Furkan Aksoy 401060
+3: Muhammed Emin Altınışık 365331
+
+Github bağlantsı :
+
+https://github.com/TheGresta/Fixture-Creator
+
+Demo Video :
+
+https://drive.google.com/file/d/1I4iz8ot6vi9Hzs1dUxS2begTBVVtlw1_/view
+
+/////////////////// MyForm.h
+
+#pragma once
+#include "Read.h"
+#include "Calculator.h"
+#include "Write.h"
+#include "CreateTeam.h"
+#include "TeamDetail.h"
+#include "VS.h"
+#include "NewTeam.h"
+
+/*
+What this program does ?
+
+We read teams from "Takimlar.txt" file.
+After we reall all of our teams, We create team file for each of them. For example: Trabzon Sport -> "Trabzon Sport.txt".
+With this way, we can save some of our informations for each different team.
+After create all of our files, program randomly create players for each team. After that, we save all of players
+informations in this files so we can acces later.
+
+After we create all teams and footballers. We save some teams informations in "Teams Info.txt" file. We list each teams informations together.
+This makes the program faster to calculate other things.
+
+When we calculate all players for each teams and all the informations, we create a fixture. Each team play with other teams for ones.
+After that we calculate the scor board and finish.
+
+Here is how we save our informations.
+
+"Takimlar.txt" -> "Team Name" # "Manager Name" # "Tactic stile : 4-4-2".
+"Isım.txt" -> 500 random names on each line.
+"Soyisim.txt" -> 500 random last names on each line.
+"-Team Name-.txt" -> "Player No" # "Player Name" # "Place : Forvet" # "Power Value" # "Age"
+"Teams Info.txt" -> "Team Name" # "Manager Name" # "Tactic stile : 4-4-2" # Avarage : "Age" # "Power" # "Def Power" # "Mid Power" # "Forvet Power"
+"Fixture.txt" -> "First Team Name" # "First Team Scor" # "Secont Team Scor" # "Secont Team Name"
+"Puan Durumu.txt" -> "Team Place" # "Team Name" # "Played Game" # "Win" # "Draw" # "Lose" # "Scor" # "Conceded" # "Average" # "Total Point"
+*/
+
+namespace CppTeams2017 {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	/// <summary>
+	/// Summary for MyForm
+	/// </summary>
+	public ref class MyForm : public System::Windows::Forms::Form
+	{
+	public:
+		MyForm(void)
+		{
+			InitializeComponent();
+			//
+			//TODO: Add the constructor code here
+			//
+
+			load_TL();
+			load_Fx();
+			load_Sb();
+
+			comboBox1->SelectedIndex = 0;
+		}
+
+	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		~MyForm()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+
+	private: System::Windows::Forms::Panel^  panel1;
+	protected:
+
+	private:
+	private: System::Windows::Forms::Button^  btn_yenile;
+	private: System::Windows::Forms::TabControl^  tabControl1;
+	private: System::Windows::Forms::TabPage^  tabPage1;
+	private: System::Windows::Forms::DataGridView^  dataGridView1;
+	private: System::Windows::Forms::TabPage^  tabPage2;
+	private: System::Windows::Forms::TabPage^  tabPage3;
+	private: System::Windows::Forms::DataGridView^  dataGridView2;
+	private: System::Windows::Forms::DataGridView^  dataGridView3;
+	private: System::Windows::Forms::Button^  btn_ara;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column3;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column4;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn4;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn5;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn6;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn7;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column5;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column6;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column7;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column8;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column9;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column10;
+	private: System::Windows::Forms::Button^  btn_add;
+	private: System::Windows::Forms::Button^  btn_rerun;
+	private: System::Windows::Forms::Button^  btn_replay;
+	private: System::Windows::Forms::ComboBox^  comboBox1;
+	private: System::Windows::Forms::TextBox^  textBox1;
+	private: System::Windows::Forms::Label^  label1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column11;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn3;
+	private: System::Windows::Forms::Button^  btn_delete;
+
+	private:
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		System::ComponentModel::Container ^components;	
+
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			System::Windows::Forms::DataGridViewCellStyle^  dataGridViewCellStyle1 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^  dataGridViewCellStyle2 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^  dataGridViewCellStyle3 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^  dataGridViewCellStyle4 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^  dataGridViewCellStyle5 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->comboBox1 = (gcnew System::Windows::Forms::ComboBox());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->btn_add = (gcnew System::Windows::Forms::Button());
+			this->btn_rerun = (gcnew System::Windows::Forms::Button());
+			this->btn_replay = (gcnew System::Windows::Forms::Button());
+			this->btn_ara = (gcnew System::Windows::Forms::Button());
+			this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
+			this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
+			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+			this->Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->tabPage2 = (gcnew System::Windows::Forms::TabPage());
+			this->dataGridView2 = (gcnew System::Windows::Forms::DataGridView());
+			this->Column11 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->tabPage3 = (gcnew System::Windows::Forms::TabPage());
+			this->dataGridView3 = (gcnew System::Windows::Forms::DataGridView());
+			this->dataGridViewTextBoxColumn4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn5 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn6 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn7 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column5 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column6 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column7 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column8 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column9 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column10 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->btn_yenile = (gcnew System::Windows::Forms::Button());
+			this->btn_delete = (gcnew System::Windows::Forms::Button());
+			this->panel1->SuspendLayout();
+			this->tabControl1->SuspendLayout();
+			this->tabPage1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->BeginInit();
+			this->tabPage2->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView2))->BeginInit();
+			this->tabPage3->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView3))->BeginInit();
+			this->SuspendLayout();
+			// 
+			// panel1
+			// 
+			this->panel1->Controls->Add(this->btn_delete);
+			this->panel1->Controls->Add(this->comboBox1);
+			this->panel1->Controls->Add(this->textBox1);
+			this->panel1->Controls->Add(this->label1);
+			this->panel1->Controls->Add(this->btn_add);
+			this->panel1->Controls->Add(this->btn_rerun);
+			this->panel1->Controls->Add(this->btn_replay);
+			this->panel1->Controls->Add(this->btn_ara);
+			this->panel1->Controls->Add(this->tabControl1);
+			this->panel1->Controls->Add(this->btn_yenile);
+			this->panel1->Location = System::Drawing::Point(0, 0);
+			this->panel1->Name = L"panel1";
+			this->panel1->Size = System::Drawing::Size(792, 482);
+			this->panel1->TabIndex = 0;
+			// 
+			// comboBox1
+			// 
+			this->comboBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->comboBox1->FormattingEnabled = true;
+			this->comboBox1->Items->AddRange(gcnew cli::array< System::Object^  >(3) { L"Takım İsmi", L"Tag", L"Mac ID" });
+			this->comboBox1->Location = System::Drawing::Point(622, 58);
+			this->comboBox1->Name = L"comboBox1";
+			this->comboBox1->Size = System::Drawing::Size(140, 24);
+			this->comboBox1->TabIndex = 17;
+			// 
+			// textBox1
+			// 
+			this->textBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->textBox1->Location = System::Drawing::Point(622, 88);
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(140, 22);
+			this->textBox1->TabIndex = 16;
+			// 
+			// label1
+			// 
+			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label1->Location = System::Drawing::Point(622, 25);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(140, 30);
+			this->label1->TabIndex = 15;
+			this->label1->Text = L"Arama Türü";
+			this->label1->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// btn_add
+			// 
+			this->btn_add->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->btn_add->Location = System::Drawing::Point(622, 257);
+			this->btn_add->Name = L"btn_add";
+			this->btn_add->Size = System::Drawing::Size(140, 45);
+			this->btn_add->TabIndex = 14;
+			this->btn_add->Text = L"Takım Ekle";
+			this->btn_add->UseVisualStyleBackColor = true;
+			this->btn_add->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::btn_add_MouseClick);
+			// 
+			// btn_rerun
+			// 
+			this->btn_rerun->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->btn_rerun->Location = System::Drawing::Point(622, 410);
+			this->btn_rerun->Name = L"btn_rerun";
+			this->btn_rerun->Size = System::Drawing::Size(140, 45);
+			this->btn_rerun->TabIndex = 13;
+			this->btn_rerun->Text = L"Sıfırla Ve Yenile";
+			this->btn_rerun->UseVisualStyleBackColor = true;
+			this->btn_rerun->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::btn_rerun_MouseClick);
+			// 
+			// btn_replay
+			// 
+			this->btn_replay->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->btn_replay->Location = System::Drawing::Point(622, 359);
+			this->btn_replay->Name = L"btn_replay";
+			this->btn_replay->Size = System::Drawing::Size(140, 45);
+			this->btn_replay->TabIndex = 12;
+			this->btn_replay->Text = L"Yeniden Oynat";
+			this->btn_replay->UseVisualStyleBackColor = true;
+			this->btn_replay->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::btn_replay_MouseClick);
+			// 
+			// btn_ara
+			// 
+			this->btn_ara->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->btn_ara->Location = System::Drawing::Point(622, 116);
+			this->btn_ara->Name = L"btn_ara";
+			this->btn_ara->Size = System::Drawing::Size(140, 45);
+			this->btn_ara->TabIndex = 10;
+			this->btn_ara->Text = L"Arama";
+			this->btn_ara->UseVisualStyleBackColor = true;
+			this->btn_ara->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::btn_ara_MouseClick);
+			// 
+			// tabControl1
+			// 
+			this->tabControl1->Controls->Add(this->tabPage1);
+			this->tabControl1->Controls->Add(this->tabPage2);
+			this->tabControl1->Controls->Add(this->tabPage3);
+			this->tabControl1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->tabControl1->Location = System::Drawing::Point(0, 0);
+			this->tabControl1->Name = L"tabControl1";
+			this->tabControl1->SelectedIndex = 0;
+			this->tabControl1->Size = System::Drawing::Size(620, 464);
+			this->tabControl1->TabIndex = 8;
+			// 
+			// tabPage1
+			// 
+			this->tabPage1->Controls->Add(this->dataGridView1);
+			this->tabPage1->ForeColor = System::Drawing::SystemColors::ControlText;
+			this->tabPage1->Location = System::Drawing::Point(4, 25);
+			this->tabPage1->Name = L"tabPage1";
+			this->tabPage1->Padding = System::Windows::Forms::Padding(3);
+			this->tabPage1->Size = System::Drawing::Size(612, 435);
+			this->tabPage1->TabIndex = 0;
+			this->tabPage1->Text = L"Takım Listesi";
+			this->tabPage1->UseVisualStyleBackColor = true;
+			// 
+			// dataGridView1
+			// 
+			this->dataGridView1->AllowUserToAddRows = false;
+			this->dataGridView1->AllowUserToDeleteRows = false;
+			this->dataGridView1->AllowUserToResizeColumns = false;
+			this->dataGridView1->AllowUserToResizeRows = false;
+			this->dataGridView1->AutoSizeColumnsMode = System::Windows::Forms::DataGridViewAutoSizeColumnsMode::Fill;
+			this->dataGridView1->ColumnHeadersHeight = 30;
+			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::DisableResizing;
+			this->dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(4) {
+				this->Column1,
+					this->Column2, this->Column3, this->Column4
+			});
+			dataGridViewCellStyle1->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleCenter;
+			dataGridViewCellStyle1->BackColor = System::Drawing::SystemColors::Window;
+			dataGridViewCellStyle1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			dataGridViewCellStyle1->ForeColor = System::Drawing::SystemColors::ControlText;
+			dataGridViewCellStyle1->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle1->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle1->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
+			this->dataGridView1->DefaultCellStyle = dataGridViewCellStyle1;
+			this->dataGridView1->Location = System::Drawing::Point(7, 7);
+			this->dataGridView1->MultiSelect = false;
+			this->dataGridView1->Name = L"dataGridView1";
+			this->dataGridView1->ReadOnly = true;
+			dataGridViewCellStyle2->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleCenter;
+			dataGridViewCellStyle2->BackColor = System::Drawing::SystemColors::Control;
+			dataGridViewCellStyle2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			dataGridViewCellStyle2->ForeColor = System::Drawing::SystemColors::WindowText;
+			dataGridViewCellStyle2->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle2->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle2->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
+			this->dataGridView1->RowHeadersDefaultCellStyle = dataGridViewCellStyle2;
+			this->dataGridView1->RowHeadersVisible = false;
+			this->dataGridView1->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::FullRowSelect;
+			this->dataGridView1->Size = System::Drawing::Size(599, 425);
+			this->dataGridView1->TabIndex = 0;
+			this->dataGridView1->DoubleClick += gcnew System::EventHandler(this, &MyForm::dataGridView1_DoubleClick);
+			// 
+			// Column1
+			// 
+			this->Column1->HeaderText = L"No";
+			this->Column1->Name = L"Column1";
+			this->Column1->ReadOnly = true;
+			// 
+			// Column2
+			// 
+			this->Column2->HeaderText = L"Tag";
+			this->Column2->Name = L"Column2";
+			this->Column2->ReadOnly = true;
+			// 
+			// Column3
+			// 
+			this->Column3->HeaderText = L"Takım İsmi";
+			this->Column3->Name = L"Column3";
+			this->Column3->ReadOnly = true;
+			// 
+			// Column4
+			// 
+			this->Column4->HeaderText = L"Teknik Direktör";
+			this->Column4->Name = L"Column4";
+			this->Column4->ReadOnly = true;
+			// 
+			// tabPage2
+			// 
+			this->tabPage2->Controls->Add(this->dataGridView2);
+			this->tabPage2->Location = System::Drawing::Point(4, 25);
+			this->tabPage2->Name = L"tabPage2";
+			this->tabPage2->Padding = System::Windows::Forms::Padding(3);
+			this->tabPage2->Size = System::Drawing::Size(612, 435);
+			this->tabPage2->TabIndex = 1;
+			this->tabPage2->Text = L"Fikstür";
+			this->tabPage2->UseVisualStyleBackColor = true;
+			// 
+			// dataGridView2
+			// 
+			this->dataGridView2->AllowUserToAddRows = false;
+			this->dataGridView2->AllowUserToDeleteRows = false;
+			this->dataGridView2->AllowUserToResizeColumns = false;
+			this->dataGridView2->AllowUserToResizeRows = false;
+			this->dataGridView2->AutoSizeColumnsMode = System::Windows::Forms::DataGridViewAutoSizeColumnsMode::Fill;
+			this->dataGridView2->ColumnHeadersHeight = 30;
+			this->dataGridView2->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::DisableResizing;
+			this->dataGridView2->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(4) {
+				this->Column11,
+					this->dataGridViewTextBoxColumn1, this->dataGridViewTextBoxColumn2, this->dataGridViewTextBoxColumn3
+			});
+			this->dataGridView2->Location = System::Drawing::Point(7, 7);
+			this->dataGridView2->MultiSelect = false;
+			this->dataGridView2->Name = L"dataGridView2";
+			this->dataGridView2->ReadOnly = true;
+			dataGridViewCellStyle3->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleCenter;
+			dataGridViewCellStyle3->BackColor = System::Drawing::SystemColors::Control;
+			dataGridViewCellStyle3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			dataGridViewCellStyle3->ForeColor = System::Drawing::SystemColors::WindowText;
+			dataGridViewCellStyle3->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle3->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle3->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
+			this->dataGridView2->RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+			this->dataGridView2->RowHeadersVisible = false;
+			this->dataGridView2->RowHeadersWidthSizeMode = System::Windows::Forms::DataGridViewRowHeadersWidthSizeMode::DisableResizing;
+			this->dataGridView2->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::FullRowSelect;
+			this->dataGridView2->Size = System::Drawing::Size(599, 425);
+			this->dataGridView2->TabIndex = 1;
+			this->dataGridView2->DoubleClick += gcnew System::EventHandler(this, &MyForm::dataGridView2_DoubleClick);
+			// 
+			// Column11
+			// 
+			this->Column11->HeaderText = L"ID";
+			this->Column11->Name = L"Column11";
+			this->Column11->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn1
+			// 
+			this->dataGridViewTextBoxColumn1->HeaderText = L"Ev Sahibi";
+			this->dataGridViewTextBoxColumn1->Name = L"dataGridViewTextBoxColumn1";
+			this->dataGridViewTextBoxColumn1->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn2
+			// 
+			this->dataGridViewTextBoxColumn2->HeaderText = L"Sonuç";
+			this->dataGridViewTextBoxColumn2->Name = L"dataGridViewTextBoxColumn2";
+			this->dataGridViewTextBoxColumn2->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn3
+			// 
+			this->dataGridViewTextBoxColumn3->HeaderText = L"Deplasman";
+			this->dataGridViewTextBoxColumn3->Name = L"dataGridViewTextBoxColumn3";
+			this->dataGridViewTextBoxColumn3->ReadOnly = true;
+			// 
+			// tabPage3
+			// 
+			this->tabPage3->Controls->Add(this->dataGridView3);
+			this->tabPage3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->tabPage3->Location = System::Drawing::Point(4, 25);
+			this->tabPage3->Name = L"tabPage3";
+			this->tabPage3->Padding = System::Windows::Forms::Padding(3);
+			this->tabPage3->Size = System::Drawing::Size(612, 435);
+			this->tabPage3->TabIndex = 2;
+			this->tabPage3->Text = L"Puan Durumu";
+			this->tabPage3->UseVisualStyleBackColor = true;
+			// 
+			// dataGridView3
+			// 
+			this->dataGridView3->AllowUserToAddRows = false;
+			this->dataGridView3->AllowUserToDeleteRows = false;
+			this->dataGridView3->AllowUserToResizeColumns = false;
+			this->dataGridView3->AllowUserToResizeRows = false;
+			this->dataGridView3->AutoSizeColumnsMode = System::Windows::Forms::DataGridViewAutoSizeColumnsMode::Fill;
+			this->dataGridView3->ColumnHeadersHeight = 30;
+			this->dataGridView3->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::DisableResizing;
+			this->dataGridView3->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(10) {
+				this->dataGridViewTextBoxColumn4,
+					this->dataGridViewTextBoxColumn5, this->dataGridViewTextBoxColumn6, this->dataGridViewTextBoxColumn7, this->Column5, this->Column6,
+					this->Column7, this->Column8, this->Column9, this->Column10
+			});
+			dataGridViewCellStyle4->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleCenter;
+			dataGridViewCellStyle4->BackColor = System::Drawing::SystemColors::Window;
+			dataGridViewCellStyle4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			dataGridViewCellStyle4->ForeColor = System::Drawing::SystemColors::ControlText;
+			dataGridViewCellStyle4->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle4->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle4->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
+			this->dataGridView3->DefaultCellStyle = dataGridViewCellStyle4;
+			this->dataGridView3->Location = System::Drawing::Point(7, 7);
+			this->dataGridView3->MultiSelect = false;
+			this->dataGridView3->Name = L"dataGridView3";
+			this->dataGridView3->ReadOnly = true;
+			dataGridViewCellStyle5->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleCenter;
+			dataGridViewCellStyle5->BackColor = System::Drawing::SystemColors::Control;
+			dataGridViewCellStyle5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			dataGridViewCellStyle5->ForeColor = System::Drawing::SystemColors::WindowText;
+			dataGridViewCellStyle5->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle5->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle5->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
+			this->dataGridView3->RowHeadersDefaultCellStyle = dataGridViewCellStyle5;
+			this->dataGridView3->RowHeadersVisible = false;
+			this->dataGridView3->RowHeadersWidthSizeMode = System::Windows::Forms::DataGridViewRowHeadersWidthSizeMode::DisableResizing;
+			this->dataGridView3->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::FullRowSelect;
+			this->dataGridView3->Size = System::Drawing::Size(599, 425);
+			this->dataGridView3->TabIndex = 1;
+			this->dataGridView3->DoubleClick += gcnew System::EventHandler(this, &MyForm::dataGridView3_DoubleClick);
+			// 
+			// dataGridViewTextBoxColumn4
+			// 
+			this->dataGridViewTextBoxColumn4->HeaderText = L"No";
+			this->dataGridViewTextBoxColumn4->Name = L"dataGridViewTextBoxColumn4";
+			this->dataGridViewTextBoxColumn4->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn5
+			// 
+			this->dataGridViewTextBoxColumn5->HeaderText = L"Takım";
+			this->dataGridViewTextBoxColumn5->Name = L"dataGridViewTextBoxColumn5";
+			this->dataGridViewTextBoxColumn5->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn6
+			// 
+			this->dataGridViewTextBoxColumn6->HeaderText = L"O";
+			this->dataGridViewTextBoxColumn6->Name = L"dataGridViewTextBoxColumn6";
+			this->dataGridViewTextBoxColumn6->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn7
+			// 
+			this->dataGridViewTextBoxColumn7->HeaderText = L"G";
+			this->dataGridViewTextBoxColumn7->Name = L"dataGridViewTextBoxColumn7";
+			this->dataGridViewTextBoxColumn7->ReadOnly = true;
+			// 
+			// Column5
+			// 
+			this->Column5->HeaderText = L"B";
+			this->Column5->Name = L"Column5";
+			this->Column5->ReadOnly = true;
+			// 
+			// Column6
+			// 
+			this->Column6->HeaderText = L"M";
+			this->Column6->Name = L"Column6";
+			this->Column6->ReadOnly = true;
+			// 
+			// Column7
+			// 
+			this->Column7->HeaderText = L"A";
+			this->Column7->Name = L"Column7";
+			this->Column7->ReadOnly = true;
+			// 
+			// Column8
+			// 
+			this->Column8->HeaderText = L"Y";
+			this->Column8->Name = L"Column8";
+			this->Column8->ReadOnly = true;
+			// 
+			// Column9
+			// 
+			this->Column9->HeaderText = L"AV";
+			this->Column9->Name = L"Column9";
+			this->Column9->ReadOnly = true;
+			// 
+			// Column10
+			// 
+			this->Column10->HeaderText = L"Puan";
+			this->Column10->Name = L"Column10";
+			this->Column10->ReadOnly = true;
+			// 
+			// btn_yenile
+			// 
+			this->btn_yenile->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->btn_yenile->Location = System::Drawing::Point(622, 308);
+			this->btn_yenile->Name = L"btn_yenile";
+			this->btn_yenile->Size = System::Drawing::Size(140, 45);
+			this->btn_yenile->TabIndex = 7;
+			this->btn_yenile->Text = L"Tablo Yenile";
+			this->btn_yenile->UseVisualStyleBackColor = true;
+			this->btn_yenile->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::btn_yenile_MouseClick);
+			// 
+			// btn_delete
+			// 
+			this->btn_delete->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->btn_delete->Location = System::Drawing::Point(622, 206);
+			this->btn_delete->Name = L"btn_delete";
+			this->btn_delete->Size = System::Drawing::Size(140, 45);
+			this->btn_delete->TabIndex = 18;
+			this->btn_delete->Text = L"Seçili Takımı Sil";
+			this->btn_delete->UseVisualStyleBackColor = true;
+			this->btn_delete->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::btn_delete_MouseClick);
+			// 
+			// MyForm
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(770, 467);
+			this->Controls->Add(this->panel1);
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedToolWindow;
+			this->Name = L"MyForm";
+			this->Text = L"TFF Super Lig";
+			this->panel1->ResumeLayout(false);
+			this->panel1->PerformLayout();
+			this->tabControl1->ResumeLayout(false);
+			this->tabPage1->ResumeLayout(false);
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->EndInit();
+			this->tabPage2->ResumeLayout(false);
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView2))->EndInit();
+			this->tabPage3->ResumeLayout(false);
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView3))->EndInit();
+			this->ResumeLayout(false);
+
+		}
+#pragma endregion
+	// Load Team List Data View
+	private: void load_TL() {
+		readFromFile readMain;
+		Calculator calculator;
+		ArrayList^ teamsInfo = gcnew ArrayList;
+		ArrayList^ teamsTag = gcnew ArrayList;
+		String^ fileName = "Takimlar.txt";
+
+		teamsInfo = readMain.read(fileName);
+		teamsTag = calculator.tags(teamsInfo);
+		dataGridView1->RowCount = 0;
+
+		dataGridView1->Columns[0]->Width = (int)(dataGridView1->Width * 0.1);
+		dataGridView1->Columns[1]->Width = (int)(dataGridView1->Width * 0.1);
+		dataGridView1->Columns[2]->Width = (int)(dataGridView1->Width * 0.4);
+		dataGridView1->Columns[3]->Width = (int)(dataGridView1->Width * 0.4);
+
+		dataGridView1->Columns[0]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView1->Columns[1]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView1->ColumnHeadersDefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+
+		int line = 1;
+
+		for (int i = 0; i < teamsInfo->Count / 3; i++) {
+			dataGridView1->Rows->Add();
+			dataGridView1->Rows[i]->Cells[0]->Value = line;
+			dataGridView1->Rows[i]->Cells[1]->Value = teamsTag[i];
+			dataGridView1->Rows[i]->Cells[2]->Value = teamsInfo[i * 3];
+			dataGridView1->Rows[i]->Cells[3]->Value = teamsInfo[i * 3 + 1];
+			line++;
+		}
+		int size = dataGridView1->RowCount;
+		for (int i = 0; i < size / 2; i++) {
+			dataGridView1->Rows[i * 2]->DefaultCellStyle->BackColor = Color::DarkGray;
+			dataGridView1->Rows[i * 2 + 1]->DefaultCellStyle->BackColor = Color::LightGray;
+		}
+
+		dataGridView1->ClearSelection();
+	}
+
+	// Load Fixture Data View
+	private: void load_Fx() {
+		readFromFile readMain;
+		String^ fileName = "Fiksture.txt";
+
+		ArrayList^ teamsInfo = readMain.read(fileName);
+		dataGridView2->RowCount = 0;
+
+		dataGridView2->Columns[0]->Width = (int)(dataGridView2->Width * 0.1);
+		dataGridView2->Columns[1]->Width = (int)(dataGridView2->Width * 0.4);
+		dataGridView2->Columns[2]->Width = (int)(dataGridView2->Width * 0.1);
+		dataGridView2->Columns[3]->Width = (int)(dataGridView2->Width * 0.4);
+
+		dataGridView2->Columns[0]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView2->Columns[1]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView2->Columns[2]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView2->Columns[3]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView2->ColumnHeadersDefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+
+		int row = 0;
+		for (int i = 0; i < teamsInfo->Count / 4; i++) {			
+			if (teamsInfo[i * 4]->ToString() != " " && teamsInfo[i * 4 + 3]->ToString() != " ") {
+				dataGridView2->Rows->Add();
+				dataGridView2->Rows[row]->Cells[1]->Value = teamsInfo[i * 4];
+				dataGridView2->Rows[row]->Cells[2]->Value = teamsInfo[i * 4 + 1] + " - " + teamsInfo[i * 4 + 2];
+				dataGridView2->Rows[row]->Cells[3]->Value = teamsInfo[i * 4 + 3];
+				row++;
+			}			
+		}
+
+		int size = dataGridView2->RowCount;
+		for (int i = 0; i < size / 2; i++) {
+			dataGridView2->Rows[i * 2]->DefaultCellStyle->BackColor = Color::DarkGray;
+			dataGridView2->Rows[i * 2 + 1]->DefaultCellStyle->BackColor = Color::LightGray;
+		}
+
+		for (int i = 0; i < size; i++) {
+			String^ id;
+			if (i + 1 < 10) id = "00" + Convert::ToString(i + 1);
+			else if(i + 1 < 100) id = "0" + Convert::ToString(i + 1);
+			else id = Convert::ToString(i + 1);
+			dataGridView2->Rows[i]->Cells[0]->Value = id;
+		}
+
+		dataGridView2->ClearSelection();
+	}
+
+	// Load Scor Board
+	private: void load_Sb() {
+		readFromFile readMain;
+		String^ fileName = "Puan Durumu.txt";
+
+		ArrayList^ teamsInfo = readMain.read(fileName);
+		dataGridView3->RowCount = 0;
+		int size = dataGridView3->ColumnCount;
+
+		for (int i = 0; i < size; i++) {
+			if(i < 1) dataGridView3->Columns[i]->Width = (int)(dataGridView3->Width * 0.1);
+			else if(i < 2) dataGridView3->Columns[i]->Width = (int)(dataGridView3->Width * 0.3);
+			else if (i < 6) dataGridView3->Columns[i]->Width = (int)(dataGridView3->Width * 0.05);
+			else if (i < size) dataGridView3->Columns[i]->Width = (int)(dataGridView3->Width * 0.1);
+		}
+
+		for (int i = 0; i < size; i++) {
+			dataGridView3->Columns[i]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		}
+
+		dataGridView3->ColumnHeadersDefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+
+		for (int i = 0; i < teamsInfo->Count / 10; i++) {
+			dataGridView3->Rows->Add();
+			for(int j=0; j<size; j++) dataGridView3->Rows[i]->Cells[j]->Value = teamsInfo[i * 10 + j];
+		}
+
+		size = dataGridView3->RowCount;
+
+		for (int i = 0; i < size; i++) {
+			if(i < 2) dataGridView3->Rows[i]->DefaultCellStyle->BackColor = Color::LimeGreen;
+			else if(i < 4) dataGridView3->Rows[i]->DefaultCellStyle->BackColor = Color::RoyalBlue;
+			else if(i < size - 4) dataGridView3->Rows[i]->DefaultCellStyle->BackColor = Color::LightSlateGray;
+			else dataGridView3->Rows[i]->DefaultCellStyle->BackColor = Color::Firebrick;			
+		}
+
+		dataGridView3->ClearSelection();
+	}
+
+	//Create Team Files And Info File And Fill
+	private: void cFiles() {
+		readFromFile readMain;
+		Calculator calculator;
+		Create create;
+
+		ArrayList^ teamsInfo = gcnew ArrayList;
+		ArrayList^ sendInfo = gcnew ArrayList;
+		String^ fileName = "Takimlar.txt";
+
+		sendInfo->Add("");
+		sendInfo->Add("");
+		sendInfo->Add("");
+
+		teamsInfo = readMain.read(fileName);
+
+		for (int i = 0; i < teamsInfo->Count / 3; i++) {
+			sendInfo[0] = teamsInfo[i * 3];
+			sendInfo[1] = teamsInfo[i * 3 + 1];
+			sendInfo[2] = teamsInfo[i * 3 + 2];
+			create.createTeam(sendInfo);
+		}
+	}
+
+	//Open Team Detail Form With Team List
+    private: System::Void dataGridView1_DoubleClick(System::Object^  sender, System::EventArgs^  e) {
+		int index = dataGridView1->CurrentRow->Index;
+		String^ teamName = dataGridView1->Rows[index]->Cells[2]->Value->ToString();
+
+		writeToFile write;
+		write.writeSavedInfo(teamName);
+
+		TeamDetail^ f1 = gcnew TeamDetail();
+		f1->ShowDialog();
+    }
+
+	//Open VS Form With Fixture
+    private: System::Void dataGridView2_DoubleClick(System::Object^  sender, System::EventArgs^  e) {
+		ArrayList^ values = gcnew ArrayList;
+		int index = dataGridView2->CurrentRow->Index;
+
+		String^ t1 = dataGridView2->Rows[index]->Cells[1]->Value->ToString();
+		String^ t2 = dataGridView2->Rows[index]->Cells[3]->Value->ToString();
+		String^ scor = dataGridView2->Rows[index]->Cells[2]->Value->ToString();
+
+		if (t1 == " " || t2 == " ") {
+			MessageBox::Show("Karşılaşma gerçekleştirilmediği için, karşılaştırma ekranı açılamıyor.", "Hata !", MessageBoxButtons::OK, MessageBoxIcon::Error);
+		}
+		else {
+			values->Add(t1);
+			values->Add(scor);
+			values->Add(t2);
+
+			writeToFile write;
+			write.writeSavedTeamsInfo(values);
+
+			VS^ f2 = gcnew VS();
+			f2->ShowDialog();
+		}		
+    }
+
+	//Open Team Detail Form Scor Board
+    private: System::Void dataGridView3_DoubleClick(System::Object^  sender, System::EventArgs^  e) {
+		int index = dataGridView3->CurrentRow->Index;
+		String^ teamName = dataGridView3->Rows[index]->Cells[1]->Value->ToString();
+
+		writeToFile write;
+		write.writeSavedInfo(teamName);
+
+		TeamDetail^ f1 = gcnew TeamDetail();
+		f1->ShowDialog();
+    }
+
+	//Seach Box Click Event
+    private: System::Void btn_ara_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+		int selected = comboBox1->SelectedIndex;
+		String^ text = textBox1->Text;
+
+		if (selected == 0) {
+			int row = dataGridView1->RowCount;
+			int index = -1;
+
+			for (int i = 0; i < row; i++) {
+				if (dataGridView1->Rows[i]->Cells[2]->Value->ToString() == text) {
+					index = i;
+					break;
+				}
+			}
+
+			if (index == -1) {
+				MessageBox::Show("Takım bulunamadı. Takım adını doğru girdiğinize emin olun.", "Hata !", MessageBoxButtons::OK, MessageBoxIcon::Error);
+			}
+
+			else {
+				writeToFile write;
+				write.writeSavedInfo(text);
+
+				TeamDetail^ f1 = gcnew TeamDetail();
+				f1->ShowDialog();
+			}
+		}
+
+		else if (selected == 1) {
+			int row = dataGridView1->RowCount;
+			int index = -1;
+
+			for (int i = 0; i < row; i++) {
+				if (dataGridView1->Rows[i]->Cells[1]->Value->ToString() == text) {
+					index = i;
+					break;
+				}
+			}
+
+			if (index == -1) {
+				MessageBox::Show("Takım bulunamadı. Takım tagını doğru girdiğinize emin olun.", "Hata !", MessageBoxButtons::OK, MessageBoxIcon::Error);
+			}
+			else {
+				writeToFile write;
+				write.writeSavedInfo(dataGridView1->Rows[index]->Cells[2]->Value->ToString());
+
+				TeamDetail^ f1 = gcnew TeamDetail();
+				f1->ShowDialog();
+			}
+		}
+
+		else if (selected == 2) {
+			int id;
+			try {
+				id = Convert::ToInt32(text);
+			}
+			catch(System::FormatException^){
+				MessageBox::Show("Maç bulunamadı. Maç ID'yi doğru girdiğinize emin olun. Örnek : '012' veya '12'", "Hata !",
+					MessageBoxButtons::OK, MessageBoxIcon::Error);
+			}
+
+			int row = dataGridView2->RowCount;
+			int index = -1;
+
+			for (int i = 0; i < row; i++) {
+				if (Convert::ToInt32(dataGridView2->Rows[i]->Cells[0]->Value->ToString()) == id) {
+					index = i;
+					break;
+				}
+			}
+
+			if (index == -1) {
+				MessageBox::Show("Maç bulunamadı. Maç ID'yi doğru girdiğinize emin olun. Örnek : '012' veya '12'", "Hata !",
+					MessageBoxButtons::OK, MessageBoxIcon::Error);
+			}
+
+			else {
+				ArrayList^ values = gcnew ArrayList;
+
+				values->Add(dataGridView2->Rows[index]->Cells[1]->Value->ToString());
+				values->Add(dataGridView2->Rows[index]->Cells[2]->Value->ToString());
+				values->Add(dataGridView2->Rows[index]->Cells[3]->Value->ToString());
+
+				writeToFile write;
+				write.writeSavedTeamsInfo(values);
+
+				VS^ f2 = gcnew VS();
+				f2->ShowDialog();
+			}
+		}
+    }
+
+	 //Refresh Tabels - Yenile Button Event
+    private: System::Void btn_yenile_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+		load_TL();
+		load_Fx();
+		load_Sb();
+    }
+
+	//Play Again button Event
+    private: System::Void btn_replay_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+
+		if (MessageBox::Show("Bu işlemi gerçekleştirmek, bütün fikstür ve puan tablosunu rasgele olakar yeniden atayacak. Devam etmek istiyor musunuz ?", "Hata !",
+			MessageBoxButtons::YesNoCancel, MessageBoxIcon::Question) == System::Windows::Forms::DialogResult::Yes) {
+			readFromFile read;
+			Calculator calculate;
+			String^ fileName = "Takimlar.txt";
+			ArrayList^ teams = read.read(fileName);
+			teams = calculate.teamList(teams);
+			calculate.createFixture(teams);
+
+			load_TL();
+			load_Fx();
+			load_Sb();
+		 }	
+    }
+
+	//Create And Play Again Button Event
+    private: System::Void btn_rerun_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+		if (MessageBox::Show("Bu işlemi gerçekleştirmek, bütün takımların güç değerlerini ve futbolcularını rasgele olakar yeniden atayacak. Fikstur ve puan tablosunu değiştirecek. Devam etmek istiyor musunuz ?", "Hata !",
+			MessageBoxButtons::YesNoCancel, MessageBoxIcon::Question) == System::Windows::Forms::DialogResult::Yes) {
+
+			writeToFile write;
+			Create create;
+			readFromFile read;
+			Calculator calculate;
+			write.clearTeamsInfo();
+			String^ fileName = "Takimlar.txt";
+			ArrayList^ values = read.read(fileName);
+			ArrayList^ teamInfo = gcnew ArrayList;
+
+			for (int i = 0; i < values->Count / 3; i++) {
+				teamInfo->Clear();
+				for (int j = 0; j < 3; j++) {
+					teamInfo->Add(values[i * 3 + j]);
+				}
+				create.createTeam(teamInfo);
+			}
+
+			values = calculate.teamList(values);
+			calculate.createFixture(values);
+
+			load_TL();
+			load_Fx();
+			load_Sb();
+		}		
+    }
+
+	//Create New Team Event
+    private: System::Void btn_add_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+		NewTeam^ f1 = gcnew NewTeam;
+		f1->ShowDialog();
+    }
+    //Delete Button Event
+    private: System::Void btn_delete_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+		if (dataGridView1->SelectedRows->Count == 0) {
+			MessageBox::Show("Seçili satır bulunamadı. Takım listesi tablosundan takım seçtiğinize emin olun.", "Hata !",
+				MessageBoxButtons::OK, MessageBoxIcon::Error);
+		}
+		else {
+			if (MessageBox::Show("Bu işlemi gerçekleştirmek, seçili satırı kalıcı olarak silecektir. Devam etmek istiyor musunuz ?", "Uyarı !",
+				MessageBoxButtons::YesNoCancel, MessageBoxIcon::Question) == System::Windows::Forms::DialogResult::Yes) {
+				String^ teamName = dataGridView1->CurrentRow->Cells[2]->Value->ToString();
+				String^ fileName = "Takimlar.txt";
+				writeToFile write;
+				write.deleteSendedTeam(teamName, fileName);
+				MessageBox::Show("Takım silindi. Yenilemeyi unutmayın.", "İşlem tamamlandı !",
+					MessageBoxButtons::OK, MessageBoxIcon::None);
+			}			
+		}
+    }
+};
+}
+
+
+
+
+
+////////////////// NewTeam.h
+
+#pragma once
+#include "Read.h"
+#include "Write.h"
+namespace CppTeams2017 {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	/// <summary>
+	/// Summary for NewTeam
+	/// </summary>
+	public ref class NewTeam : public System::Windows::Forms::Form
+	{
+	public:
+		NewTeam(void)
+		{
+			InitializeComponent();
+			//
+			//TODO: Add the constructor code here
+			//
+
+			comboBox1->SelectedIndex = 0;
+		}
+
+	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		~NewTeam()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+	private: System::Windows::Forms::Label^  label2;
+	protected:
+	private: System::Windows::Forms::Label^  label1;
+	private: System::Windows::Forms::Label^  label3;
+	private: System::Windows::Forms::TextBox^  text_name;
+	private: System::Windows::Forms::TextBox^  text_manager;
+	private: System::Windows::Forms::ComboBox^  comboBox1;
+	private: System::Windows::Forms::Button^  btn_save;
+
+	private:
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		System::ComponentModel::Container ^components;
+
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->text_name = (gcnew System::Windows::Forms::TextBox());
+			this->text_manager = (gcnew System::Windows::Forms::TextBox());
+			this->comboBox1 = (gcnew System::Windows::Forms::ComboBox());
+			this->btn_save = (gcnew System::Windows::Forms::Button());
+			this->SuspendLayout();
+			// 
+			// label2
+			// 
+			this->label2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label2->Location = System::Drawing::Point(12, 72);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(200, 25);
+			this->label2->TabIndex = 1;
+			this->label2->Text = L"Teknik Direktör";
+			this->label2->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label1
+			// 
+			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label1->Location = System::Drawing::Point(12, 9);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(200, 25);
+			this->label1->TabIndex = 2;
+			this->label1->Text = L"Takım İsmi";
+			this->label1->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label3
+			// 
+			this->label3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label3->Location = System::Drawing::Point(12, 135);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(200, 25);
+			this->label3->TabIndex = 3;
+			this->label3->Text = L"Diziliş";
+			this->label3->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// text_name
+			// 
+			this->text_name->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_name->Location = System::Drawing::Point(12, 37);
+			this->text_name->Name = L"text_name";
+			this->text_name->Size = System::Drawing::Size(200, 22);
+			this->text_name->TabIndex = 4;
+			// 
+			// text_manager
+			// 
+			this->text_manager->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_manager->Location = System::Drawing::Point(12, 100);
+			this->text_manager->Name = L"text_manager";
+			this->text_manager->Size = System::Drawing::Size(200, 22);
+			this->text_manager->TabIndex = 5;
+			// 
+			// comboBox1
+			// 
+			this->comboBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->comboBox1->FormattingEnabled = true;
+			this->comboBox1->Items->AddRange(gcnew cli::array< System::Object^  >(10) {
+				L"4-4-2", L"2-3-5", L"3-3-4", L"3-4-3", L"3-5-2",
+					L"3-6-1", L"4-2-4", L"4-5-1", L"5-3-2", L"5-4-1"
+			});
+			this->comboBox1->Location = System::Drawing::Point(12, 163);
+			this->comboBox1->Name = L"comboBox1";
+			this->comboBox1->Size = System::Drawing::Size(200, 24);
+			this->comboBox1->TabIndex = 6;
+			// 
+			// btn_save
+			// 
+			this->btn_save->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->btn_save->Location = System::Drawing::Point(12, 207);
+			this->btn_save->Name = L"btn_save";
+			this->btn_save->Size = System::Drawing::Size(200, 35);
+			this->btn_save->TabIndex = 7;
+			this->btn_save->Text = L"Kaydet";
+			this->btn_save->UseVisualStyleBackColor = true;
+			this->btn_save->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &NewTeam::btn_save_MouseClick);
+			// 
+			// NewTeam
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(227, 254);
+			this->Controls->Add(this->btn_save);
+			this->Controls->Add(this->comboBox1);
+			this->Controls->Add(this->text_manager);
+			this->Controls->Add(this->text_name);
+			this->Controls->Add(this->label3);
+			this->Controls->Add(this->label1);
+			this->Controls->Add(this->label2);
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedToolWindow;
+			this->Name = L"NewTeam";
+			this->Text = L"Takım Oluştur";
+			this->ResumeLayout(false);
+			this->PerformLayout();
+
+		}
+#pragma endregion
+	// Save Button Event
+	private: System::Void btn_save_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+		readFromFile read;
+		writeToFile write;
+		String^ fileName = "Takimlar.txt";		
+		String^ teamName = text_name->Text;
+		String^ manager = text_manager->Text;
+		String^ tactic = comboBox1->SelectedItem->ToString();
+		int error = 0;
+
+		ArrayList^ values = read.read(fileName);
+
+		for (int i = 0; i < values->Count / 3; i++) {
+			if (values[i * 3]->ToString() == teamName) {
+				error = 1;
+				break;
+			}
+		}
+
+		if (error == 1) {
+			MessageBox::Show("Girilen takım ismi sistemde zaten bulunmakta.", "Hata !", MessageBoxButtons::OK, MessageBoxIcon::Information);
+		}
+		else {
+			if (MessageBox::Show("Bu işlemi gerçekleştirmek, bütün takımların güç değerlerini ve futbolcularını rasgele olakar atamanızı gerektirebilir. Fikstur ve puan tablosunu değiştirmek zorunda kalabilirsiniz. Devam etmek istiyor musunuz ?", "Hata !",
+				MessageBoxButtons::YesNoCancel, MessageBoxIcon::Question) == System::Windows::Forms::DialogResult::Yes) {
+				values->Clear();
+				values->Add(teamName);
+				values->Add(manager);
+				values->Add(tactic);
+
+				write.writeToTeamFile(values);
+				MessageBox::Show("Kayıt Tamamlandı. Tekrar hesaplamaların yapılması için 'Sıfırla Ve Yenile' butonuna tıklamayı unutmayın.",
+					"İşlem Tamamlandı", MessageBoxButtons::OK, MessageBoxIcon::None);
+				NewTeam^ f1 = gcnew NewTeam;
+				f1->Close();
+			}
+			
+		}
+	}
+};
+
+
+}
+
+
+
+
+/////////////////////////// Read.h
+
+#pragma once
+using namespace System;
+using namespace System::Collections;
+
+class readFromFile {
+public:
+	ArrayList^ read(String^);
+};
+
+
+/////////////////////////// Read.cpp
+
+#include "Read.h"
+
+using namespace System;
+using namespace System::IO;
+using namespace System::Collections;
+
+ArrayList^ readFromFile::read(String^ fileName) {
+	ArrayList^ teamsInfo = gcnew ArrayList;
+	String^ str;
+
+	StreamReader^ din = File::OpenText(fileName);
+
+	while ((str = din->ReadLine()) != nullptr) {
+		array<String^>^ words;
+		words = str->Split('#');
+
+		for each(String^ temp in words) {
+			teamsInfo->Add(temp);
+		}
+	}
+
+	din->Close();
+
+	return teamsInfo;
+}
+
+////////////////////////////// Struct.h
+
+#pragma once
+using namespace System;
+using namespace System::Collections;
+
+value struct Teams {
+public:
+	String^ name;  //Name
+	int o;         //Played
+	int g;         //Win
+	int b;         //Draw
+	int m;         //Lose
+	int a;         //Scor
+	int y;         //Conceded
+	int av;        //Average
+	int puan;      //Total Scor
+};
+
+
+
+/////////////////////////////// TeamDetail.h
+
+#pragma once
+#include "Read.h"
+#include "Calculator.h"
+#include "Write.h"
+
+namespace CppTeams2017 {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	/// <summary>
+	/// Summary for TeamDetail
+	/// </summary>
+	public ref class TeamDetail : public System::Windows::Forms::Form
+	{
+	public:
+		TeamDetail(void)
+		{
+			InitializeComponent();
+			//
+			//TODO: Add the constructor code here
+			//
+
+			this->ClientSize = System::Drawing::Size(640, 538);
+
+			fill_boxed();
+			fill_player();
+			fill_Fixture();
+		}
+
+	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		~TeamDetail()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+	private: System::Windows::Forms::Label^  label1;
+	protected:
+	private: System::Windows::Forms::Label^  label2;
+	private: System::Windows::Forms::Label^  label3;
+	private: System::Windows::Forms::Label^  label4;
+	private: System::Windows::Forms::Label^  label5;
+	private: System::Windows::Forms::Label^  label6;
+	private: System::Windows::Forms::TextBox^  text_manager;
+	private: System::Windows::Forms::TextBox^  text_name;
+	private:
+	private: System::Windows::Forms::TextBox^  text_dizilis;
+	private: System::Windows::Forms::TextBox^  text_tag;
+	private: System::Windows::Forms::TextBox^  text_guc;
+	private: System::Windows::Forms::TextBox^  text_yas;
+	private: System::Windows::Forms::Panel^  panel1;
+	private: System::Windows::Forms::Panel^  panel2;
+	private: System::Windows::Forms::TabControl^  tabControl1;
+	private: System::Windows::Forms::TabPage^  tabPage1;
+	private: System::Windows::Forms::DataGridView^  dataGridView1;
+	private: System::Windows::Forms::TabPage^  tabPage2;
+	private: System::Windows::Forms::DataGridView^  dataGridView2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn3;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column3;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column4;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column5;
+	private: System::Windows::Forms::Panel^  panel3;
+	private: System::Windows::Forms::TextBox^  t_yas;
+	private: System::Windows::Forms::TextBox^  t_pos;
+	private: System::Windows::Forms::TextBox^  t_name;
+	private: System::Windows::Forms::Label^  label11;
+	private: System::Windows::Forms::Label^  label10;
+	private: System::Windows::Forms::Label^  label9;
+	private: System::Windows::Forms::Label^  label8;
+	private: System::Windows::Forms::Label^  label7;
+	private: System::Windows::Forms::TextBox^  t_power;
+	private: System::Windows::Forms::TextBox^  t_no;
+	private: System::Windows::Forms::Button^  btn_save;
+	private:
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		System::ComponentModel::Container ^components;
+
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			System::Windows::Forms::DataGridViewCellStyle^  dataGridViewCellStyle1 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^  dataGridViewCellStyle2 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->label4 = (gcnew System::Windows::Forms::Label());
+			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->label6 = (gcnew System::Windows::Forms::Label());
+			this->text_manager = (gcnew System::Windows::Forms::TextBox());
+			this->text_name = (gcnew System::Windows::Forms::TextBox());
+			this->text_dizilis = (gcnew System::Windows::Forms::TextBox());
+			this->text_tag = (gcnew System::Windows::Forms::TextBox());
+			this->text_guc = (gcnew System::Windows::Forms::TextBox());
+			this->text_yas = (gcnew System::Windows::Forms::TextBox());
+			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->panel2 = (gcnew System::Windows::Forms::Panel());
+			this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
+			this->tabPage1 = (gcnew System::Windows::Forms::TabPage());
+			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+			this->Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column5 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->tabPage2 = (gcnew System::Windows::Forms::TabPage());
+			this->dataGridView2 = (gcnew System::Windows::Forms::DataGridView());
+			this->dataGridViewTextBoxColumn1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->panel3 = (gcnew System::Windows::Forms::Panel());
+			this->btn_save = (gcnew System::Windows::Forms::Button());
+			this->t_power = (gcnew System::Windows::Forms::TextBox());
+			this->t_no = (gcnew System::Windows::Forms::TextBox());
+			this->t_yas = (gcnew System::Windows::Forms::TextBox());
+			this->t_pos = (gcnew System::Windows::Forms::TextBox());
+			this->t_name = (gcnew System::Windows::Forms::TextBox());
+			this->label11 = (gcnew System::Windows::Forms::Label());
+			this->label10 = (gcnew System::Windows::Forms::Label());
+			this->label9 = (gcnew System::Windows::Forms::Label());
+			this->label8 = (gcnew System::Windows::Forms::Label());
+			this->label7 = (gcnew System::Windows::Forms::Label());
+			this->panel1->SuspendLayout();
+			this->panel2->SuspendLayout();
+			this->tabControl1->SuspendLayout();
+			this->tabPage1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->BeginInit();
+			this->tabPage2->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView2))->BeginInit();
+			this->panel3->SuspendLayout();
+			this->SuspendLayout();
+			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label1->Location = System::Drawing::Point(9, 12);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(91, 16);
+			this->label1->TabIndex = 0;
+			this->label1->Text = L"Takım İsmi :";
+			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label2->Location = System::Drawing::Point(9, 49);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(122, 16);
+			this->label2->TabIndex = 1;
+			this->label2->Text = L"Teknik Direktör :";
+			// 
+			// label3
+			// 
+			this->label3->AutoSize = true;
+			this->label3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label3->Location = System::Drawing::Point(283, 49);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(44, 16);
+			this->label3->TabIndex = 2;
+			this->label3->Text = L"Tag :";
+			// 
+			// label4
+			// 
+			this->label4->AutoSize = true;
+			this->label4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label4->Location = System::Drawing::Point(283, 12);
+			this->label4->Name = L"label4";
+			this->label4->Size = System::Drawing::Size(62, 16);
+			this->label4->TabIndex = 3;
+			this->label4->Text = L"Diziliş  :";
+			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label5->Location = System::Drawing::Point(448, 12);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(67, 16);
+			this->label5->TabIndex = 4;
+			this->label5->Text = L"Ort Yaş :";
+			// 
+			// label6
+			// 
+			this->label6->AutoSize = true;
+			this->label6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label6->Location = System::Drawing::Point(448, 49);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(67, 16);
+			this->label6->TabIndex = 5;
+			this->label6->Text = L"Ort Güç :";
+			// 
+			// text_manager
+			// 
+			this->text_manager->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_manager->Location = System::Drawing::Point(137, 46);
+			this->text_manager->Name = L"text_manager";
+			this->text_manager->ReadOnly = true;
+			this->text_manager->Size = System::Drawing::Size(136, 22);
+			this->text_manager->TabIndex = 6;
+			this->text_manager->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_name
+			// 
+			this->text_name->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_name->Location = System::Drawing::Point(137, 9);
+			this->text_name->Name = L"text_name";
+			this->text_name->ReadOnly = true;
+			this->text_name->Size = System::Drawing::Size(136, 22);
+			this->text_name->TabIndex = 7;
+			this->text_name->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_dizilis
+			// 
+			this->text_dizilis->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_dizilis->Location = System::Drawing::Point(351, 9);
+			this->text_dizilis->Name = L"text_dizilis";
+			this->text_dizilis->ReadOnly = true;
+			this->text_dizilis->Size = System::Drawing::Size(80, 22);
+			this->text_dizilis->TabIndex = 8;
+			this->text_dizilis->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_tag
+			// 
+			this->text_tag->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_tag->Location = System::Drawing::Point(351, 46);
+			this->text_tag->Name = L"text_tag";
+			this->text_tag->ReadOnly = true;
+			this->text_tag->Size = System::Drawing::Size(80, 22);
+			this->text_tag->TabIndex = 9;
+			this->text_tag->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_guc
+			// 
+			this->text_guc->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_guc->Location = System::Drawing::Point(521, 46);
+			this->text_guc->Name = L"text_guc";
+			this->text_guc->ReadOnly = true;
+			this->text_guc->Size = System::Drawing::Size(80, 22);
+			this->text_guc->TabIndex = 10;
+			this->text_guc->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_yas
+			// 
+			this->text_yas->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_yas->Location = System::Drawing::Point(521, 9);
+			this->text_yas->Name = L"text_yas";
+			this->text_yas->ReadOnly = true;
+			this->text_yas->Size = System::Drawing::Size(80, 22);
+			this->text_yas->TabIndex = 11;
+			this->text_yas->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// panel1
+			// 
+			this->panel1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->panel1->Controls->Add(this->text_guc);
+			this->panel1->Controls->Add(this->text_yas);
+			this->panel1->Controls->Add(this->label1);
+			this->panel1->Controls->Add(this->label2);
+			this->panel1->Controls->Add(this->text_tag);
+			this->panel1->Controls->Add(this->label3);
+			this->panel1->Controls->Add(this->text_dizilis);
+			this->panel1->Controls->Add(this->label4);
+			this->panel1->Controls->Add(this->text_name);
+			this->panel1->Controls->Add(this->label5);
+			this->panel1->Controls->Add(this->text_manager);
+			this->panel1->Controls->Add(this->label6);
+			this->panel1->Location = System::Drawing::Point(3, 3);
+			this->panel1->Name = L"panel1";
+			this->panel1->Size = System::Drawing::Size(614, 84);
+			this->panel1->TabIndex = 12;
+			// 
+			// panel2
+			// 
+			this->panel2->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->panel2->Controls->Add(this->tabControl1);
+			this->panel2->Location = System::Drawing::Point(3, 94);
+			this->panel2->Name = L"panel2";
+			this->panel2->Size = System::Drawing::Size(614, 439);
+			this->panel2->TabIndex = 13;
+			// 
+			// tabControl1
+			// 
+			this->tabControl1->Controls->Add(this->tabPage1);
+			this->tabControl1->Controls->Add(this->tabPage2);
+			this->tabControl1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->tabControl1->Location = System::Drawing::Point(4, 4);
+			this->tabControl1->Name = L"tabControl1";
+			this->tabControl1->SelectedIndex = 0;
+			this->tabControl1->Size = System::Drawing::Size(597, 427);
+			this->tabControl1->TabIndex = 0;
+			// 
+			// tabPage1
+			// 
+			this->tabPage1->Controls->Add(this->dataGridView1);
+			this->tabPage1->Location = System::Drawing::Point(4, 25);
+			this->tabPage1->Name = L"tabPage1";
+			this->tabPage1->Padding = System::Windows::Forms::Padding(3);
+			this->tabPage1->Size = System::Drawing::Size(589, 398);
+			this->tabPage1->TabIndex = 0;
+			this->tabPage1->Text = L"Takım Kadrosu";
+			this->tabPage1->UseVisualStyleBackColor = true;
+			// 
+			// dataGridView1
+			// 
+			this->dataGridView1->AllowUserToAddRows = false;
+			this->dataGridView1->AllowUserToDeleteRows = false;
+			this->dataGridView1->AllowUserToResizeColumns = false;
+			this->dataGridView1->AllowUserToResizeRows = false;
+			this->dataGridView1->AutoSizeColumnsMode = System::Windows::Forms::DataGridViewAutoSizeColumnsMode::Fill;
+			dataGridViewCellStyle1->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleCenter;
+			dataGridViewCellStyle1->BackColor = System::Drawing::SystemColors::Control;
+			dataGridViewCellStyle1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			dataGridViewCellStyle1->ForeColor = System::Drawing::SystemColors::WindowText;
+			dataGridViewCellStyle1->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle1->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle1->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
+			this->dataGridView1->ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+			this->dataGridView1->ColumnHeadersHeight = 30;
+			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::DisableResizing;
+			this->dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(5) {
+				this->Column1,
+					this->Column2, this->Column3, this->Column4, this->Column5
+			});
+			this->dataGridView1->Location = System::Drawing::Point(0, 0);
+			this->dataGridView1->MultiSelect = false;
+			this->dataGridView1->Name = L"dataGridView1";
+			this->dataGridView1->ReadOnly = true;
+			this->dataGridView1->RowHeadersVisible = false;
+			this->dataGridView1->RowHeadersWidthSizeMode = System::Windows::Forms::DataGridViewRowHeadersWidthSizeMode::DisableResizing;
+			this->dataGridView1->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::FullRowSelect;
+			this->dataGridView1->Size = System::Drawing::Size(589, 398);
+			this->dataGridView1->TabIndex = 0;
+			this->dataGridView1->CellClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &TeamDetail::dataGridView1_CellClick);
+			this->dataGridView1->DoubleClick += gcnew System::EventHandler(this, &TeamDetail::dataGridView1_DoubleClick);
+			// 
+			// Column1
+			// 
+			this->Column1->HeaderText = L"No";
+			this->Column1->Name = L"Column1";
+			this->Column1->ReadOnly = true;
+			// 
+			// Column2
+			// 
+			this->Column2->HeaderText = L"Futbolcu Adı";
+			this->Column2->Name = L"Column2";
+			this->Column2->ReadOnly = true;
+			// 
+			// Column3
+			// 
+			this->Column3->HeaderText = L"Poz";
+			this->Column3->Name = L"Column3";
+			this->Column3->ReadOnly = true;
+			// 
+			// Column4
+			// 
+			this->Column4->HeaderText = L"Güç";
+			this->Column4->Name = L"Column4";
+			this->Column4->ReadOnly = true;
+			// 
+			// Column5
+			// 
+			this->Column5->HeaderText = L"Yaş";
+			this->Column5->Name = L"Column5";
+			this->Column5->ReadOnly = true;
+			// 
+			// tabPage2
+			// 
+			this->tabPage2->Controls->Add(this->dataGridView2);
+			this->tabPage2->Location = System::Drawing::Point(4, 25);
+			this->tabPage2->Name = L"tabPage2";
+			this->tabPage2->Padding = System::Windows::Forms::Padding(3);
+			this->tabPage2->Size = System::Drawing::Size(589, 398);
+			this->tabPage2->TabIndex = 1;
+			this->tabPage2->Text = L"Takım Fikstürü";
+			this->tabPage2->UseVisualStyleBackColor = true;
+			// 
+			// dataGridView2
+			// 
+			this->dataGridView2->AllowUserToAddRows = false;
+			this->dataGridView2->AllowUserToDeleteRows = false;
+			this->dataGridView2->AllowUserToResizeColumns = false;
+			this->dataGridView2->AllowUserToResizeRows = false;
+			this->dataGridView2->AutoSizeColumnsMode = System::Windows::Forms::DataGridViewAutoSizeColumnsMode::Fill;
+			dataGridViewCellStyle2->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleCenter;
+			dataGridViewCellStyle2->BackColor = System::Drawing::SystemColors::Control;
+			dataGridViewCellStyle2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			dataGridViewCellStyle2->ForeColor = System::Drawing::SystemColors::WindowText;
+			dataGridViewCellStyle2->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle2->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle2->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
+			this->dataGridView2->ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+			this->dataGridView2->ColumnHeadersHeight = 30;
+			this->dataGridView2->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::DisableResizing;
+			this->dataGridView2->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(3) {
+				this->dataGridViewTextBoxColumn1,
+					this->dataGridViewTextBoxColumn2, this->dataGridViewTextBoxColumn3
+			});
+			this->dataGridView2->Location = System::Drawing::Point(0, 0);
+			this->dataGridView2->MultiSelect = false;
+			this->dataGridView2->Name = L"dataGridView2";
+			this->dataGridView2->ReadOnly = true;
+			this->dataGridView2->RowHeadersVisible = false;
+			this->dataGridView2->RowHeadersWidthSizeMode = System::Windows::Forms::DataGridViewRowHeadersWidthSizeMode::DisableResizing;
+			this->dataGridView2->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::FullRowSelect;
+			this->dataGridView2->Size = System::Drawing::Size(589, 398);
+			this->dataGridView2->TabIndex = 1;
+			// 
+			// dataGridViewTextBoxColumn1
+			// 
+			this->dataGridViewTextBoxColumn1->HeaderText = L"Ev Sahibi";
+			this->dataGridViewTextBoxColumn1->Name = L"dataGridViewTextBoxColumn1";
+			this->dataGridViewTextBoxColumn1->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn2
+			// 
+			this->dataGridViewTextBoxColumn2->HeaderText = L"Sonuç";
+			this->dataGridViewTextBoxColumn2->Name = L"dataGridViewTextBoxColumn2";
+			this->dataGridViewTextBoxColumn2->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn3
+			// 
+			this->dataGridViewTextBoxColumn3->HeaderText = L"Deplasman";
+			this->dataGridViewTextBoxColumn3->Name = L"dataGridViewTextBoxColumn3";
+			this->dataGridViewTextBoxColumn3->ReadOnly = true;
+			// 
+			// panel3
+			// 
+			this->panel3->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->panel3->Controls->Add(this->btn_save);
+			this->panel3->Controls->Add(this->t_power);
+			this->panel3->Controls->Add(this->t_no);
+			this->panel3->Controls->Add(this->t_yas);
+			this->panel3->Controls->Add(this->t_pos);
+			this->panel3->Controls->Add(this->t_name);
+			this->panel3->Controls->Add(this->label11);
+			this->panel3->Controls->Add(this->label10);
+			this->panel3->Controls->Add(this->label9);
+			this->panel3->Controls->Add(this->label8);
+			this->panel3->Controls->Add(this->label7);
+			this->panel3->Location = System::Drawing::Point(643, 94);
+			this->panel3->Name = L"panel3";
+			this->panel3->Size = System::Drawing::Size(189, 439);
+			this->panel3->TabIndex = 14;
+			// 
+			// btn_save
+			// 
+			this->btn_save->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->btn_save->Location = System::Drawing::Point(16, 383);
+			this->btn_save->Name = L"btn_save";
+			this->btn_save->Size = System::Drawing::Size(150, 44);
+			this->btn_save->TabIndex = 10;
+			this->btn_save->Text = L"Kaydet Ve Kapat";
+			this->btn_save->UseVisualStyleBackColor = true;
+			this->btn_save->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &TeamDetail::btn_save_MouseClick);
+			// 
+			// t_power
+			// 
+			this->t_power->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->t_power->Location = System::Drawing::Point(16, 280);
+			this->t_power->Name = L"t_power";
+			this->t_power->Size = System::Drawing::Size(150, 22);
+			this->t_power->TabIndex = 9;
+			this->t_power->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// t_no
+			// 
+			this->t_no->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->t_no->Location = System::Drawing::Point(16, 222);
+			this->t_no->Name = L"t_no";
+			this->t_no->Size = System::Drawing::Size(150, 22);
+			this->t_no->TabIndex = 8;
+			this->t_no->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// t_yas
+			// 
+			this->t_yas->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->t_yas->Location = System::Drawing::Point(16, 164);
+			this->t_yas->Name = L"t_yas";
+			this->t_yas->ReadOnly = true;
+			this->t_yas->Size = System::Drawing::Size(150, 22);
+			this->t_yas->TabIndex = 7;
+			this->t_yas->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// t_pos
+			// 
+			this->t_pos->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->t_pos->Location = System::Drawing::Point(16, 106);
+			this->t_pos->Name = L"t_pos";
+			this->t_pos->ReadOnly = true;
+			this->t_pos->Size = System::Drawing::Size(150, 22);
+			this->t_pos->TabIndex = 6;
+			this->t_pos->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// t_name
+			// 
+			this->t_name->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->t_name->Location = System::Drawing::Point(16, 48);
+			this->t_name->Name = L"t_name";
+			this->t_name->ReadOnly = true;
+			this->t_name->Size = System::Drawing::Size(150, 22);
+			this->t_name->TabIndex = 5;
+			this->t_name->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// label11
+			// 
+			this->label11->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label11->Location = System::Drawing::Point(16, 247);
+			this->label11->Name = L"label11";
+			this->label11->Size = System::Drawing::Size(150, 30);
+			this->label11->TabIndex = 4;
+			this->label11->Text = L"Güç";
+			this->label11->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label10
+			// 
+			this->label10->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label10->Location = System::Drawing::Point(16, 189);
+			this->label10->Name = L"label10";
+			this->label10->Size = System::Drawing::Size(150, 30);
+			this->label10->TabIndex = 3;
+			this->label10->Text = L"Forma No";
+			this->label10->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label9
+			// 
+			this->label9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label9->Location = System::Drawing::Point(16, 131);
+			this->label9->Name = L"label9";
+			this->label9->Size = System::Drawing::Size(150, 30);
+			this->label9->TabIndex = 2;
+			this->label9->Text = L"Yaş";
+			this->label9->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label8
+			// 
+			this->label8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label8->Location = System::Drawing::Point(16, 73);
+			this->label8->Name = L"label8";
+			this->label8->Size = System::Drawing::Size(150, 30);
+			this->label8->TabIndex = 1;
+			this->label8->Text = L"Pozisyon";
+			this->label8->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label7
+			// 
+			this->label7->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label7->Location = System::Drawing::Point(16, 15);
+			this->label7->Name = L"label7";
+			this->label7->Size = System::Drawing::Size(150, 30);
+			this->label7->TabIndex = 0;
+			this->label7->Text = L"Futbolcu İsmi";
+			this->label7->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// TeamDetail
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(842, 538);
+			this->Controls->Add(this->panel3);
+			this->Controls->Add(this->panel2);
+			this->Controls->Add(this->panel1);
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedToolWindow;
+			this->Name = L"TeamDetail";
+			this->Text = L"Takım Detayı";
+			this->panel1->ResumeLayout(false);
+			this->panel1->PerformLayout();
+			this->panel2->ResumeLayout(false);
+			this->tabControl1->ResumeLayout(false);
+			this->tabPage1->ResumeLayout(false);
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->EndInit();
+			this->tabPage2->ResumeLayout(false);
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView2))->EndInit();
+			this->panel3->ResumeLayout(false);
+			this->panel3->PerformLayout();
+			this->ResumeLayout(false);
+
+		}
+#pragma endregion
+
+	// Fill Mini Boxed
+	private: void fill_boxed() {
+		Calculator calculate;
+		ArrayList^ values = calculate.teamDetailMiniBox();
+
+		text_name->Text = values[0]->ToString();
+		text_manager->Text = values[1]->ToString();
+		text_dizilis->Text = values[2]->ToString();		
+		text_yas->Text = values[3]->ToString();
+		text_guc->Text = values[4]->ToString();
+		text_tag->Text = values[5]->ToString();
+	}
+
+	// Fill Player DataView
+	private: void fill_player() {
+		Calculator calculate;
+		ArrayList^ values = calculate.teamPlayerDetail();
+
+		dataGridView1->RowCount = 0;
+		for (int i = 0; i < values->Count / 5; i++) {
+			dataGridView1->Rows->Add();
+			for (int j = 0; j < 5; j++) {				
+				dataGridView1->Rows[i]->Cells[j]->Value = values[i * 5 + j];
+			}
+		}
+
+		dataGridView1->Columns[0]->Width = (int)(dataGridView1->Width * 0.15);
+		dataGridView1->Columns[1]->Width = (int)(dataGridView1->Width * 0.4);
+		dataGridView1->Columns[2]->Width = (int)(dataGridView1->Width * 0.15);
+		dataGridView1->Columns[3]->Width = (int)(dataGridView1->Width * 0.15);
+		dataGridView1->Columns[4]->Width = (int)(dataGridView1->Width * 0.15);
+
+		dataGridView1->Columns[0]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView1->Columns[2]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView1->Columns[3]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView1->Columns[4]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+
+		for (int i = 0; i < dataGridView1->RowCount; i++) {
+			String^ value = dataGridView1->Rows[i]->Cells[2]->Value->ToString();
+
+			if(value == "KAL") dataGridView1->Rows[i]->DefaultCellStyle->BackColor = Color::Gold;
+			else if (value == "DEF") dataGridView1->Rows[i]->DefaultCellStyle->BackColor = Color::LimeGreen;
+			else if (value == "ORT") dataGridView1->Rows[i]->DefaultCellStyle->BackColor = Color::RoyalBlue;
+			else if (value == "FOR") dataGridView1->Rows[i]->DefaultCellStyle->BackColor = Color::Firebrick;
+		}
+
+		dataGridView1->ClearSelection();
+	}
+
+	// Fill Fixture DataView
+	private: void fill_Fixture() {
+		Calculator calculate;
+		ArrayList^ values = calculate.teamFixture();
+
+		dataGridView2->RowCount = 0;
+
+		for (int i = 0; i < values->Count / 5; i++) {
+			dataGridView2->Rows->Add();
+			dataGridView2->Rows[i]->Cells[0]->Value = values[i * 5];
+			dataGridView2->Rows[i]->Cells[1]->Value = values[i * 5 + 1]->ToString() + " - " + values[i * 5 + 2]->ToString();
+			dataGridView2->Rows[i]->Cells[2]->Value = values[i * 5 + 3];
+
+			if (Convert::ToInt32(values[i * 5 + 4]) == 3) dataGridView2->Rows[i]->DefaultCellStyle->BackColor = Color::LimeGreen;
+			else if (Convert::ToInt32(values[i * 5 + 4]) == 2) dataGridView2->Rows[i]->DefaultCellStyle->BackColor = Color::DimGray;
+			else if (Convert::ToInt32(values[i * 5 + 4]) == 1) dataGridView2->Rows[i]->DefaultCellStyle->BackColor = Color::Firebrick;
+		}
+
+		dataGridView2->Columns[0]->Width = (int)(dataGridView2->Width * 0.4);
+		dataGridView2->Columns[1]->Width = (int)(dataGridView2->Width * 0.2);
+		dataGridView2->Columns[2]->Width = (int)(dataGridView2->Width * 0.4);
+
+		dataGridView2->Columns[0]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView2->Columns[1]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView2->Columns[2]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+
+		dataGridView2->ClearSelection();
+	}
+
+	// Open Player Detail
+    private: System::Void dataGridView1_DoubleClick(System::Object^  sender, System::EventArgs^  e) {
+		String^ no = dataGridView1->CurrentRow->Cells[0]->Value->ToString();
+		String^ name = dataGridView1->CurrentRow->Cells[1]->Value->ToString();
+		String^ pos = dataGridView1->CurrentRow->Cells[2]->Value->ToString();
+		String^ guc = dataGridView1->CurrentRow->Cells[3]->Value->ToString();
+		String^ yas = dataGridView1->CurrentRow->Cells[4]->Value->ToString();
+		
+		t_name->Text = name;
+		t_pos->Text = pos;
+		t_yas->Text = yas;
+		t_no->Text = no;
+		t_power->Text = guc;
+
+		this->ClientSize = System::Drawing::Size(858, 538);
+    }
+
+	// Close Player Detail And Save Data
+    private: System::Void btn_save_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+		String^ no = dataGridView1->CurrentRow->Cells[0]->Value->ToString();
+		String^ name = dataGridView1->CurrentRow->Cells[1]->Value->ToString();
+		String^ pos = dataGridView1->CurrentRow->Cells[2]->Value->ToString();
+		String^ guc = dataGridView1->CurrentRow->Cells[3]->Value->ToString();
+		String^ yas = dataGridView1->CurrentRow->Cells[4]->Value->ToString();
+
+		String^ noNew = t_no->Text->ToString();
+		String^ gucNew = t_power->Text->ToString();
+		
+		int err = 0;
+		int gucI = -1, noI = -1;
+
+		try {
+			gucI = Convert::ToInt32(gucNew);
+			noI = Convert::ToInt32(noNew);
+			err = 1;
+		}
+		catch(System::FormatException^){
+			MessageBox::Show("Lütfen 'Güç' ve 'No' değerlerini, sayı değeri giriniz.", "Hata !",
+				MessageBoxButtons::OK, MessageBoxIcon::Error);
+			err = 2;
+		}
+
+		if (err == 1) {
+			if (gucI < 30 || gucI > 100 || noI < 1 || noI > 99) {
+				MessageBox::Show("'Güç' ve 'No' değerleri doğru girilmedi. Güç değeri 30 ile 100 arasında olmalıdır. Forma numarasu 1 ile 99 arasında olmalıdır.", "Hata !",
+					MessageBoxButtons::OK, MessageBoxIcon::Error);
+				err = 3;
+			}
+		}
+
+		if (noNew != no || gucNew != guc) {
+			if (err == 1) {
+				int size = dataGridView1->RowCount;
+				for (int i = 0; i < size; i++) {
+					String^ nameCheck = dataGridView1->Rows[i]->Cells[1]->Value->ToString();
+					no = dataGridView1->Rows[i]->Cells[0]->Value->ToString();
+					if ((noNew == no) && (name != nameCheck)) {
+						MessageBox::Show("Forma numarası takımda zaten bulunmakta. Lütfen başka bir forma numarası giriniz.", "Hata !",
+							MessageBoxButtons::OK, MessageBoxIcon::Error);
+						err = 4;
+						break;
+					}
+				}
+
+				if (err == 1) {
+					int powerT = 0;
+					for (int i = 0; i < size; i++) {
+						powerT += Convert::ToInt32(dataGridView1->Rows[i]->Cells[3]->Value->ToString());
+					}
+
+					powerT -= Convert::ToInt32(guc);
+					powerT += gucI;
+
+					if (powerT < 660) {
+						MessageBox::Show("Girilen oyuncu gücü çok düşük. Takımın ortalama gücü minimum '60' olmalıdır. Oyuncu gücünü yeniden giriniz.", "Hata !",
+							MessageBoxButtons::OK, MessageBoxIcon::Error);
+						err = 5;
+					}
+
+					if (err == 1) {
+						if (MessageBox::Show("Bu işlemi gerçekleştirmek, futbolcu bilgilerini kalıcı olarak değiştirecektir. Devam etmek istiyor musunuz ?", "Uyarı !",
+							MessageBoxButtons::YesNoCancel, MessageBoxIcon::Question) == System::Windows::Forms::DialogResult::Yes) {
+							ArrayList^ values = gcnew ArrayList;
+							String^ teamName = text_name->Text->ToString();
+							values->Add(teamName);
+							values->Add(name);
+							values->Add(noNew);
+							values->Add(gucNew);
+
+							writeToFile write;
+							write.changePlayerInfo(values);
+
+							MessageBox::Show("Futbolcu bilgileri değiştirildi.", "İşlem Başarılı !",
+								MessageBoxButtons::OK, MessageBoxIcon::None);
+
+							fill_boxed();
+							fill_player();
+							fill_Fixture();
+
+							this->ClientSize = System::Drawing::Size(640, 538);
+						}						
+					}
+				}
+			}
+		}
+		
+		else if (noNew == no && gucNew == guc) {
+			this->ClientSize = System::Drawing::Size(645, 538);
+		}
+
+    }
+	// Change Player Detail When Selected Row Changed    
+    private: System::Void dataGridView1_CellClick(System::Object^  sender, System::Windows::Forms::DataGridViewCellEventArgs^  e) {
+		String^ no = dataGridView1->CurrentRow->Cells[0]->Value->ToString();
+		String^ name = dataGridView1->CurrentRow->Cells[1]->Value->ToString();
+		String^ pos = dataGridView1->CurrentRow->Cells[2]->Value->ToString();
+		String^ guc = dataGridView1->CurrentRow->Cells[3]->Value->ToString();
+		String^ yas = dataGridView1->CurrentRow->Cells[4]->Value->ToString();
+
+		t_name->Text = name;
+		t_pos->Text = pos;
+		t_yas->Text = yas;
+		t_no->Text = no;
+		t_power->Text = guc;
+    }
+};
+}
+
+
+///////////////////////////////// VS.h
+
+#pragma once
+#include "Calculator.h"
+
+namespace CppTeams2017 {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	/// <summary>
+	/// Summary for VS
+	/// </summary>
+	public ref class VS : public System::Windows::Forms::Form
+	{
+	public:
+		VS(void)
+		{
+			InitializeComponent();
+			//
+			//TODO: Add the constructor code here
+			//
+
+			load_box();
+			load_data();
+		}
+
+	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		~VS()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+	private: System::Windows::Forms::TextBox^  text_m1;
+	protected:
+
+	private: System::Windows::Forms::TextBox^  text_t1;
+	private: System::Windows::Forms::TextBox^  text_tactic1;
+	private: System::Windows::Forms::TextBox^  text_yas1;
+	private: System::Windows::Forms::TextBox^  text_guc1;
+	protected:
+	private: System::Windows::Forms::TextBox^  text_m2;
+	private: System::Windows::Forms::TextBox^  text_t2;
+	private: System::Windows::Forms::TextBox^  text_tactic2;
+	private: System::Windows::Forms::TextBox^  text_yas2;
+	private: System::Windows::Forms::TextBox^  text_guc2;
+	private: System::Windows::Forms::TextBox^  text_wr1;
+	private: System::Windows::Forms::TextBox^  text_wr2;
+	private: System::Windows::Forms::TextBox^  text_s1;
+	private: System::Windows::Forms::TextBox^  text_s2;
+	private: System::Windows::Forms::Panel^  panel1;
+	private: System::Windows::Forms::Label^  label4;
+	private: System::Windows::Forms::Label^  label9;
+	private: System::Windows::Forms::Label^  label10;
+	private: System::Windows::Forms::Label^  label11;
+	private: System::Windows::Forms::Label^  label12;
+	private: System::Windows::Forms::Label^  label13;
+	private: System::Windows::Forms::Label^  label14;
+	private: System::Windows::Forms::Label^  label8;
+	private: System::Windows::Forms::Label^  label1;
+	private: System::Windows::Forms::Label^  label2;
+	private: System::Windows::Forms::Label^  label3;
+	private: System::Windows::Forms::Label^  label5;
+	private: System::Windows::Forms::Label^  label6;
+	private: System::Windows::Forms::Label^  label7;
+	private: System::Windows::Forms::DataGridView^  dataGridView2;
+	private: System::Windows::Forms::DataGridView^  dataGridView1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn3;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn4;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  dataGridViewTextBoxColumn5;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column3;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column4;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column5;
+	protected:
+
+	protected:
+
+	private:
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		System::ComponentModel::Container ^components;
+
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			System::Windows::Forms::DataGridViewCellStyle^  dataGridViewCellStyle2 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^  dataGridViewCellStyle1 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			this->text_m1 = (gcnew System::Windows::Forms::TextBox());
+			this->text_t1 = (gcnew System::Windows::Forms::TextBox());
+			this->text_tactic1 = (gcnew System::Windows::Forms::TextBox());
+			this->text_yas1 = (gcnew System::Windows::Forms::TextBox());
+			this->text_guc1 = (gcnew System::Windows::Forms::TextBox());
+			this->text_m2 = (gcnew System::Windows::Forms::TextBox());
+			this->text_t2 = (gcnew System::Windows::Forms::TextBox());
+			this->text_tactic2 = (gcnew System::Windows::Forms::TextBox());
+			this->text_yas2 = (gcnew System::Windows::Forms::TextBox());
+			this->text_guc2 = (gcnew System::Windows::Forms::TextBox());
+			this->text_wr1 = (gcnew System::Windows::Forms::TextBox());
+			this->text_wr2 = (gcnew System::Windows::Forms::TextBox());
+			this->text_s1 = (gcnew System::Windows::Forms::TextBox());
+			this->text_s2 = (gcnew System::Windows::Forms::TextBox());
+			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->label4 = (gcnew System::Windows::Forms::Label());
+			this->label9 = (gcnew System::Windows::Forms::Label());
+			this->label10 = (gcnew System::Windows::Forms::Label());
+			this->label11 = (gcnew System::Windows::Forms::Label());
+			this->label12 = (gcnew System::Windows::Forms::Label());
+			this->label13 = (gcnew System::Windows::Forms::Label());
+			this->label14 = (gcnew System::Windows::Forms::Label());
+			this->label8 = (gcnew System::Windows::Forms::Label());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->label6 = (gcnew System::Windows::Forms::Label());
+			this->label7 = (gcnew System::Windows::Forms::Label());
+			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+			this->dataGridView2 = (gcnew System::Windows::Forms::DataGridView());
+			this->Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column5 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->dataGridViewTextBoxColumn5 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->panel1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView2))->BeginInit();
+			this->SuspendLayout();
+			// 
+			// text_m1
+			// 
+			this->text_m1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_m1->Location = System::Drawing::Point(223, 46);
+			this->text_m1->Name = L"text_m1";
+			this->text_m1->ReadOnly = true;
+			this->text_m1->Size = System::Drawing::Size(136, 22);
+			this->text_m1->TabIndex = 6;
+			this->text_m1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_t1
+			// 
+			this->text_t1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_t1->Location = System::Drawing::Point(223, 9);
+			this->text_t1->Name = L"text_t1";
+			this->text_t1->ReadOnly = true;
+			this->text_t1->Size = System::Drawing::Size(136, 22);
+			this->text_t1->TabIndex = 7;
+			this->text_t1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_tactic1
+			// 
+			this->text_tactic1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_tactic1->Location = System::Drawing::Point(223, 83);
+			this->text_tactic1->Name = L"text_tactic1";
+			this->text_tactic1->ReadOnly = true;
+			this->text_tactic1->Size = System::Drawing::Size(136, 22);
+			this->text_tactic1->TabIndex = 8;
+			this->text_tactic1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_yas1
+			// 
+			this->text_yas1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_yas1->Location = System::Drawing::Point(223, 120);
+			this->text_yas1->Name = L"text_yas1";
+			this->text_yas1->ReadOnly = true;
+			this->text_yas1->Size = System::Drawing::Size(136, 22);
+			this->text_yas1->TabIndex = 10;
+			this->text_yas1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_guc1
+			// 
+			this->text_guc1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_guc1->Location = System::Drawing::Point(223, 154);
+			this->text_guc1->Name = L"text_guc1";
+			this->text_guc1->ReadOnly = true;
+			this->text_guc1->Size = System::Drawing::Size(136, 22);
+			this->text_guc1->TabIndex = 11;
+			this->text_guc1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_m2
+			// 
+			this->text_m2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_m2->Location = System::Drawing::Point(367, 46);
+			this->text_m2->Name = L"text_m2";
+			this->text_m2->ReadOnly = true;
+			this->text_m2->Size = System::Drawing::Size(136, 22);
+			this->text_m2->TabIndex = 12;
+			this->text_m2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_t2
+			// 
+			this->text_t2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_t2->Location = System::Drawing::Point(367, 9);
+			this->text_t2->Name = L"text_t2";
+			this->text_t2->ReadOnly = true;
+			this->text_t2->Size = System::Drawing::Size(136, 22);
+			this->text_t2->TabIndex = 13;
+			this->text_t2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_tactic2
+			// 
+			this->text_tactic2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_tactic2->Location = System::Drawing::Point(367, 83);
+			this->text_tactic2->Name = L"text_tactic2";
+			this->text_tactic2->ReadOnly = true;
+			this->text_tactic2->Size = System::Drawing::Size(136, 22);
+			this->text_tactic2->TabIndex = 14;
+			this->text_tactic2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_yas2
+			// 
+			this->text_yas2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_yas2->Location = System::Drawing::Point(367, 120);
+			this->text_yas2->Name = L"text_yas2";
+			this->text_yas2->ReadOnly = true;
+			this->text_yas2->Size = System::Drawing::Size(136, 22);
+			this->text_yas2->TabIndex = 16;
+			this->text_yas2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_guc2
+			// 
+			this->text_guc2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_guc2->Location = System::Drawing::Point(367, 154);
+			this->text_guc2->Name = L"text_guc2";
+			this->text_guc2->ReadOnly = true;
+			this->text_guc2->Size = System::Drawing::Size(136, 22);
+			this->text_guc2->TabIndex = 17;
+			this->text_guc2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_wr1
+			// 
+			this->text_wr1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_wr1->Location = System::Drawing::Point(223, 191);
+			this->text_wr1->Name = L"text_wr1";
+			this->text_wr1->ReadOnly = true;
+			this->text_wr1->Size = System::Drawing::Size(136, 22);
+			this->text_wr1->TabIndex = 18;
+			this->text_wr1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_wr2
+			// 
+			this->text_wr2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_wr2->Location = System::Drawing::Point(367, 191);
+			this->text_wr2->Name = L"text_wr2";
+			this->text_wr2->ReadOnly = true;
+			this->text_wr2->Size = System::Drawing::Size(136, 22);
+			this->text_wr2->TabIndex = 19;
+			this->text_wr2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_s1
+			// 
+			this->text_s1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_s1->Location = System::Drawing::Point(223, 228);
+			this->text_s1->Name = L"text_s1";
+			this->text_s1->ReadOnly = true;
+			this->text_s1->Size = System::Drawing::Size(136, 22);
+			this->text_s1->TabIndex = 21;
+			this->text_s1->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// text_s2
+			// 
+			this->text_s2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->text_s2->Location = System::Drawing::Point(367, 228);
+			this->text_s2->Name = L"text_s2";
+			this->text_s2->ReadOnly = true;
+			this->text_s2->Size = System::Drawing::Size(136, 22);
+			this->text_s2->TabIndex = 22;
+			this->text_s2->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+			// 
+			// panel1
+			// 
+			this->panel1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->panel1->Controls->Add(this->dataGridView2);
+			this->panel1->Controls->Add(this->dataGridView1);
+			this->panel1->Controls->Add(this->label4);
+			this->panel1->Controls->Add(this->label9);
+			this->panel1->Controls->Add(this->label10);
+			this->panel1->Controls->Add(this->label11);
+			this->panel1->Controls->Add(this->label12);
+			this->panel1->Controls->Add(this->label13);
+			this->panel1->Controls->Add(this->label14);
+			this->panel1->Controls->Add(this->label8);
+			this->panel1->Controls->Add(this->text_s2);
+			this->panel1->Controls->Add(this->text_s1);
+			this->panel1->Controls->Add(this->label1);
+			this->panel1->Controls->Add(this->text_wr2);
+			this->panel1->Controls->Add(this->text_wr1);
+			this->panel1->Controls->Add(this->text_guc2);
+			this->panel1->Controls->Add(this->text_yas2);
+			this->panel1->Controls->Add(this->text_tactic2);
+			this->panel1->Controls->Add(this->text_t2);
+			this->panel1->Controls->Add(this->text_m2);
+			this->panel1->Controls->Add(this->text_guc1);
+			this->panel1->Controls->Add(this->text_yas1);
+			this->panel1->Controls->Add(this->text_tactic1);
+			this->panel1->Controls->Add(this->label2);
+			this->panel1->Controls->Add(this->label3);
+			this->panel1->Controls->Add(this->label5);
+			this->panel1->Controls->Add(this->text_t1);
+			this->panel1->Controls->Add(this->label6);
+			this->panel1->Controls->Add(this->text_m1);
+			this->panel1->Controls->Add(this->label7);
+			this->panel1->Location = System::Drawing::Point(12, 12);
+			this->panel1->Name = L"panel1";
+			this->panel1->Size = System::Drawing::Size(728, 598);
+			this->panel1->TabIndex = 13;
+			// 
+			// label4
+			// 
+			this->label4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label4->Location = System::Drawing::Point(102, 228);
+			this->label4->Name = L"label4";
+			this->label4->Size = System::Drawing::Size(115, 22);
+			this->label4->TabIndex = 30;
+			this->label4->Text = L"Maç Sonucu";
+			this->label4->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label9
+			// 
+			this->label9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label9->Location = System::Drawing::Point(102, 191);
+			this->label9->Name = L"label9";
+			this->label9->Size = System::Drawing::Size(115, 22);
+			this->label9->TabIndex = 29;
+			this->label9->Text = L"Kazanma Şansı";
+			this->label9->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label10
+			// 
+			this->label10->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label10->Location = System::Drawing::Point(102, 9);
+			this->label10->Name = L"label10";
+			this->label10->Size = System::Drawing::Size(115, 22);
+			this->label10->TabIndex = 24;
+			this->label10->Text = L"Takım İsmi";
+			this->label10->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label11
+			// 
+			this->label11->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label11->Location = System::Drawing::Point(102, 46);
+			this->label11->Name = L"label11";
+			this->label11->Size = System::Drawing::Size(115, 22);
+			this->label11->TabIndex = 25;
+			this->label11->Text = L"Teknik Direktör";
+			this->label11->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label12
+			// 
+			this->label12->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label12->Location = System::Drawing::Point(102, 83);
+			this->label12->Name = L"label12";
+			this->label12->Size = System::Drawing::Size(115, 22);
+			this->label12->TabIndex = 26;
+			this->label12->Text = L"Diziliş ";
+			this->label12->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label13
+			// 
+			this->label13->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label13->Location = System::Drawing::Point(102, 120);
+			this->label13->Name = L"label13";
+			this->label13->Size = System::Drawing::Size(115, 22);
+			this->label13->TabIndex = 27;
+			this->label13->Text = L"Ort Yaş";
+			this->label13->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label14
+			// 
+			this->label14->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label14->Location = System::Drawing::Point(102, 154);
+			this->label14->Name = L"label14";
+			this->label14->Size = System::Drawing::Size(115, 22);
+			this->label14->TabIndex = 28;
+			this->label14->Text = L"Ort Güç";
+			this->label14->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label8
+			// 
+			this->label8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label8->Location = System::Drawing::Point(518, 228);
+			this->label8->Name = L"label8";
+			this->label8->Size = System::Drawing::Size(115, 22);
+			this->label8->TabIndex = 23;
+			this->label8->Text = L"Maç Sonucu";
+			this->label8->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label1
+			// 
+			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label1->Location = System::Drawing::Point(518, 191);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(115, 22);
+			this->label1->TabIndex = 20;
+			this->label1->Text = L"Kazanma Şansı";
+			this->label1->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label2
+			// 
+			this->label2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label2->Location = System::Drawing::Point(518, 9);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(115, 22);
+			this->label2->TabIndex = 0;
+			this->label2->Text = L"Takım İsmi";
+			this->label2->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label3
+			// 
+			this->label3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label3->Location = System::Drawing::Point(518, 46);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(115, 22);
+			this->label3->TabIndex = 1;
+			this->label3->Text = L"Teknik Direktör";
+			this->label3->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label5
+			// 
+			this->label5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label5->Location = System::Drawing::Point(518, 83);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(115, 22);
+			this->label5->TabIndex = 3;
+			this->label5->Text = L"Diziliş ";
+			this->label5->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label6
+			// 
+			this->label6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label6->Location = System::Drawing::Point(518, 120);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(115, 22);
+			this->label6->TabIndex = 4;
+			this->label6->Text = L"Ort Yaş";
+			this->label6->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label7
+			// 
+			this->label7->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label7->Location = System::Drawing::Point(518, 154);
+			this->label7->Name = L"label7";
+			this->label7->Size = System::Drawing::Size(115, 22);
+			this->label7->TabIndex = 5;
+			this->label7->Text = L"Ort Güç";
+			this->label7->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// dataGridView1
+			// 
+			this->dataGridView1->AllowUserToAddRows = false;
+			this->dataGridView1->AllowUserToDeleteRows = false;
+			this->dataGridView1->AllowUserToResizeColumns = false;
+			this->dataGridView1->AllowUserToResizeRows = false;
+			this->dataGridView1->AutoSizeColumnsMode = System::Windows::Forms::DataGridViewAutoSizeColumnsMode::Fill;
+			dataGridViewCellStyle2->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleCenter;
+			dataGridViewCellStyle2->BackColor = System::Drawing::SystemColors::Control;
+			dataGridViewCellStyle2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			dataGridViewCellStyle2->ForeColor = System::Drawing::SystemColors::WindowText;
+			dataGridViewCellStyle2->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle2->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle2->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
+			this->dataGridView1->ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+			this->dataGridView1->ColumnHeadersHeight = 30;
+			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::DisableResizing;
+			this->dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(5) {
+				this->Column1,
+					this->Column2, this->Column3, this->Column4, this->Column5
+			});
+			this->dataGridView1->Location = System::Drawing::Point(19, 265);
+			this->dataGridView1->MultiSelect = false;
+			this->dataGridView1->Name = L"dataGridView1";
+			this->dataGridView1->ReadOnly = true;
+			this->dataGridView1->RowHeadersVisible = false;
+			this->dataGridView1->RowHeadersWidthSizeMode = System::Windows::Forms::DataGridViewRowHeadersWidthSizeMode::DisableResizing;
+			this->dataGridView1->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::FullRowSelect;
+			this->dataGridView1->Size = System::Drawing::Size(342, 323);
+			this->dataGridView1->TabIndex = 31;
+			// 
+			// dataGridView2
+			// 
+			this->dataGridView2->AllowUserToAddRows = false;
+			this->dataGridView2->AllowUserToDeleteRows = false;
+			this->dataGridView2->AllowUserToResizeColumns = false;
+			this->dataGridView2->AllowUserToResizeRows = false;
+			this->dataGridView2->AutoSizeColumnsMode = System::Windows::Forms::DataGridViewAutoSizeColumnsMode::Fill;
+			dataGridViewCellStyle1->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleCenter;
+			dataGridViewCellStyle1->BackColor = System::Drawing::SystemColors::Control;
+			dataGridViewCellStyle1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			dataGridViewCellStyle1->ForeColor = System::Drawing::SystemColors::WindowText;
+			dataGridViewCellStyle1->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle1->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle1->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
+			this->dataGridView2->ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+			this->dataGridView2->ColumnHeadersHeight = 30;
+			this->dataGridView2->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::DisableResizing;
+			this->dataGridView2->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(5) {
+				this->dataGridViewTextBoxColumn1,
+					this->dataGridViewTextBoxColumn2, this->dataGridViewTextBoxColumn3, this->dataGridViewTextBoxColumn4, this->dataGridViewTextBoxColumn5
+			});
+			this->dataGridView2->Location = System::Drawing::Point(367, 265);
+			this->dataGridView2->MultiSelect = false;
+			this->dataGridView2->Name = L"dataGridView2";
+			this->dataGridView2->ReadOnly = true;
+			this->dataGridView2->RowHeadersVisible = false;
+			this->dataGridView2->RowHeadersWidthSizeMode = System::Windows::Forms::DataGridViewRowHeadersWidthSizeMode::DisableResizing;
+			this->dataGridView2->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::FullRowSelect;
+			this->dataGridView2->Size = System::Drawing::Size(342, 323);
+			this->dataGridView2->TabIndex = 32;
+			// 
+			// Column1
+			// 
+			this->Column1->HeaderText = L"No";
+			this->Column1->Name = L"Column1";
+			this->Column1->ReadOnly = true;
+			// 
+			// Column2
+			// 
+			this->Column2->HeaderText = L"İsim";
+			this->Column2->Name = L"Column2";
+			this->Column2->ReadOnly = true;
+			// 
+			// Column3
+			// 
+			this->Column3->HeaderText = L"Poz";
+			this->Column3->Name = L"Column3";
+			this->Column3->ReadOnly = true;
+			// 
+			// Column4
+			// 
+			this->Column4->HeaderText = L"Güç";
+			this->Column4->Name = L"Column4";
+			this->Column4->ReadOnly = true;
+			// 
+			// Column5
+			// 
+			this->Column5->HeaderText = L"Yaş";
+			this->Column5->Name = L"Column5";
+			this->Column5->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn1
+			// 
+			this->dataGridViewTextBoxColumn1->HeaderText = L"No";
+			this->dataGridViewTextBoxColumn1->Name = L"dataGridViewTextBoxColumn1";
+			this->dataGridViewTextBoxColumn1->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn2
+			// 
+			this->dataGridViewTextBoxColumn2->HeaderText = L"İsim";
+			this->dataGridViewTextBoxColumn2->Name = L"dataGridViewTextBoxColumn2";
+			this->dataGridViewTextBoxColumn2->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn3
+			// 
+			this->dataGridViewTextBoxColumn3->HeaderText = L"Poz";
+			this->dataGridViewTextBoxColumn3->Name = L"dataGridViewTextBoxColumn3";
+			this->dataGridViewTextBoxColumn3->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn4
+			// 
+			this->dataGridViewTextBoxColumn4->HeaderText = L"Güç";
+			this->dataGridViewTextBoxColumn4->Name = L"dataGridViewTextBoxColumn4";
+			this->dataGridViewTextBoxColumn4->ReadOnly = true;
+			// 
+			// dataGridViewTextBoxColumn5
+			// 
+			this->dataGridViewTextBoxColumn5->HeaderText = L"Yaş";
+			this->dataGridViewTextBoxColumn5->Name = L"dataGridViewTextBoxColumn5";
+			this->dataGridViewTextBoxColumn5->ReadOnly = true;
+			// 
+			// VS
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(753, 615);
+			this->Controls->Add(this->panel1);
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedToolWindow;
+			this->Name = L"VS";
+			this->Text = L"Takım Karşılaştırması";
+			this->panel1->ResumeLayout(false);
+			this->panel1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView2))->EndInit();
+			this->ResumeLayout(false);
+
+		}
+#pragma endregion
+
+	//Load Mini Boxes As Needed
+	private: void load_box() {
+		Calculator calculate;
+		ArrayList^ values = calculate.vsDetailMiniBox();
+
+		text_t1->Text = values[0]->ToString();
+		text_m1->Text = values[1]->ToString();
+		text_tactic1->Text = values[2]->ToString();
+		text_yas1->Text = values[3]->ToString();
+		text_guc1->Text = values[4]->ToString();
+		text_s1->Text = values[5]->ToString();
+
+		text_t2->Text = values[6]->ToString();
+		text_m2->Text = values[7]->ToString();
+		text_tactic2->Text = values[8]->ToString();
+		text_yas2->Text = values[9]->ToString();
+		text_guc2->Text = values[10]->ToString();
+		text_s2->Text = values[11]->ToString();
+
+		float c1 = Convert::ToInt32(values[4]);
+		float c2 = Convert::ToInt32(values[10]);
+
+		float wr1 = (c1 / (c1 + c2) * 100);
+		float wr2 = (c2 / (c1 + c2) * 100);
+
+		int wc1 = Math::Round(wr1);
+		int wc2 = Math::Round(wr2);
+
+		text_wr1->Text = "%" + Convert::ToString(wc1);
+		text_wr2->Text = "%" + Convert::ToString(wc2);
+	}
+
+	//Load Both DataGirView
+	private: void load_data() {
+		Calculator calculate;
+		ArrayList^ values = calculate.teamVsTeamNames();
+		String^ teamName1 = values[0]->ToString();
+		String^ teamName2 = values[3]->ToString();
+
+		dataGridView1->RowCount = 0;
+		dataGridView2->RowCount = 0;
+
+		values = calculate.teamVsPlayerDetail(teamName1);
+
+		for (int i = 0; i < values->Count / 5; i++) {
+			dataGridView1->Rows->Add();
+			for (int j = 0; j < 5; j++) {
+				dataGridView1->Rows[i]->Cells[j]->Value = values[i * 5 + j];
+			}
+		}
+
+		values = calculate.teamVsPlayerDetail(teamName2);
+
+		for (int i = 0; i < values->Count / 5; i++) {
+			dataGridView2->Rows->Add();
+			for (int j = 0; j < 5; j++) {
+				dataGridView2->Rows[i]->Cells[j]->Value = values[i * 5 + j];
+			}
+		}
+
+		dataGridView1->Columns[0]->Width = (int)(dataGridView1->Width * 0.15);
+		dataGridView1->Columns[1]->Width = (int)(dataGridView1->Width * 0.4);
+		dataGridView1->Columns[2]->Width = (int)(dataGridView1->Width * 0.15);
+		dataGridView1->Columns[3]->Width = (int)(dataGridView1->Width * 0.15);
+		dataGridView1->Columns[4]->Width = (int)(dataGridView1->Width * 0.15);
+
+		dataGridView2->Columns[0]->Width = (int)(dataGridView2->Width * 0.15);
+		dataGridView2->Columns[1]->Width = (int)(dataGridView2->Width * 0.4);
+		dataGridView2->Columns[2]->Width = (int)(dataGridView2->Width * 0.15);
+		dataGridView2->Columns[3]->Width = (int)(dataGridView2->Width * 0.15);
+		dataGridView2->Columns[4]->Width = (int)(dataGridView2->Width * 0.15);
+
+		dataGridView1->Columns[0]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView1->Columns[2]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView1->Columns[3]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView1->Columns[4]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+
+		dataGridView2->Columns[0]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView2->Columns[2]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView2->Columns[3]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+		dataGridView2->Columns[4]->DefaultCellStyle->Alignment = DataGridViewContentAlignment::MiddleCenter;
+
+		for (int i = 0; i < dataGridView1->RowCount; i++) {
+			String^ value = dataGridView1->Rows[i]->Cells[2]->Value->ToString();
+
+			if (value == "KAL") dataGridView1->Rows[i]->DefaultCellStyle->BackColor = Color::Gold;
+			else if (value == "DEF") dataGridView1->Rows[i]->DefaultCellStyle->BackColor = Color::LimeGreen;
+			else if (value == "ORT") dataGridView1->Rows[i]->DefaultCellStyle->BackColor = Color::RoyalBlue;
+			else if (value == "FOR") dataGridView1->Rows[i]->DefaultCellStyle->BackColor = Color::Firebrick;
+		}
+
+		for (int i = 0; i < dataGridView2->RowCount; i++) {
+			String^ value = dataGridView2->Rows[i]->Cells[2]->Value->ToString();
+
+			if (value == "KAL") dataGridView2->Rows[i]->DefaultCellStyle->BackColor = Color::Gold;
+			else if (value == "DEF") dataGridView2->Rows[i]->DefaultCellStyle->BackColor = Color::LimeGreen;
+			else if (value == "ORT") dataGridView2->Rows[i]->DefaultCellStyle->BackColor = Color::RoyalBlue;
+			else if (value == "FOR") dataGridView2->Rows[i]->DefaultCellStyle->BackColor = Color::Firebrick;
+		}
+
+		dataGridView1->ClearSelection();
+		dataGridView2->ClearSelection();		
+	}
+
+	};
+}
+
+
+////////////////////////////// Write.h
+
+#pragma once
+using namespace System;
+using namespace System::Collections;
+
+class writeToFile {
+public:
+	void writeToTeamFile(ArrayList^);
+	void writeScorBoard(ArrayList^);
+	void writePlayers(ArrayList^, String^);
+	void writeEndOfFile(ArrayList^, String^);
+	void writeFixture(ArrayList^);
+	void writeSavedInfo(String^);
+	void writeSavedTeamsInfo(ArrayList^);
+	void clearTeamsInfo();
+	void deleteSendedTeam(String^, String^);
+	void changePlayerInfo(ArrayList^);
+	void changeTeamInfo(String^);
+};
+
+////////////////////////////////// Write.cpp
+
+#include "Write.h"
+#include "Read.h"
+
+using namespace System;
+using namespace System::IO;
+using namespace System::Collections;
+
+// Write New Team Info To End Of Team file
+void writeToFile::writeToTeamFile(ArrayList^ team) {
+	readFromFile readFromFile;
+	ArrayList^ teamsInfo = gcnew ArrayList;
+	String^ fileName = "Takimlar.txt";
+	String^ key = "#";
+
+	teamsInfo = readFromFile.read(fileName);
+	StreamWriter^ sw = gcnew StreamWriter(fileName);
+
+	for (int i = 0; i < teamsInfo->Count / 3; i++) {
+		sw->WriteLine(teamsInfo[i * 3] + key + teamsInfo[i * 3 + 1] + key + teamsInfo[i * 3 + 2]);
+	}
+
+	sw->WriteLine(team[0] + key + team[1] + key + team[2]);
+
+	sw->Close();
+}
+
+// Write Players
+void writeToFile::writePlayers(ArrayList^ array, String^ fileName) {
+	StreamWriter^ sw = gcnew StreamWriter(fileName);
+
+	for (int i = 0; i < array->Count; i++) {
+		sw->WriteLine(array[i]);
+	}
+
+	sw->Close();
+}
+
+// Write Given Array To End Of Given File
+void writeToFile::writeEndOfFile(ArrayList^ array, String^ fileName) {
+	StreamReader^ din = File::OpenText(fileName);
+	ArrayList^ lines = gcnew ArrayList;
+	String^ str;
+
+	while ((str = din->ReadLine()) != nullptr) {
+		if (str != "") lines->Add(str);
+	}
+
+	din->Close();
+
+	StreamWriter^ sw = gcnew StreamWriter(fileName);
+
+	for (int i = 0; i < lines->Count; i++) {
+		sw->WriteLine(lines[i]);
+	}
+
+	for (int i = 0; i < array->Count; i++) {
+		sw->WriteLine(array[i]);
+	}	
+	sw->Close();
+}
+
+//  Write Fixture File
+void writeToFile::writeFixture(ArrayList^ arry) {
+	String^ fileName = "Fiksture.txt";
+	String^ key = "#";
+	StreamWriter^ sw = gcnew StreamWriter(fileName);
+
+	for (int i = 0; i < arry->Count/4; i++) {
+		String^ line = arry[i * 4] + key + arry[i * 4 + 1] + key + arry[i * 4 + 2] + key + arry[i * 4 + 3];
+		sw->WriteLine(line);
+	}
+
+	sw->Close();
+}
+
+// Write Scor Board
+void writeToFile::writeScorBoard(ArrayList^ arry) {
+	String^ fileName = "Puan Durumu.txt";
+	String^ key = "#";
+
+	StreamWriter^ sw = gcnew StreamWriter(fileName);
+
+	for (int i = 0; i < arry->Count / 10; i++) {
+		String^ line = arry[i * 10] + key + arry[i * 10 + 1] + key + arry[i * 10 + 2] + key + arry[i * 10 + 3] 
+			+ key + arry[i * 10 + 4]	+ key + arry[i * 10 + 5] + key + arry[i * 10 + 6] + key + arry[i * 10 + 7] 
+			+ key + arry[i * 10 + 8] + key + arry[i * 10 + 9];
+		sw->WriteLine(line);
+	}
+
+	sw->Close();
+}
+
+// Write Saved Infor To Open Team Detail Form
+void writeToFile::writeSavedInfo(String^ teamName) {
+	String^ fileName = "Saved Info.txt";
+	StreamWriter^ sw = gcnew StreamWriter(fileName);
+
+	sw->WriteLine(teamName);
+
+	sw->Close();
+}
+
+// Write Saved Info To Open VS Form
+void writeToFile::writeSavedTeamsInfo(ArrayList^ info) {
+	String^ fileName = "Saved Info.txt";
+	String^ key = "#";
+	StreamWriter^ sw = gcnew StreamWriter(fileName);
+
+	String^ scor1 = info[1]->ToString()->Substring(0, 1);
+	String^ scor2 = info[1]->ToString()->Substring(4, 1);
+
+	String^ line = info[0]->ToString() + key + scor1 + key + scor2 + key + info[2]->ToString();
+
+	sw->WriteLine(line);
+
+	sw->Close();
+}
+
+// Clear Teams Info File
+void writeToFile::clearTeamsInfo() {
+	String^ fileName = "Teams Info.txt";
+	StreamWriter^ sw = gcnew StreamWriter(fileName);
+
+	sw->WriteLine("");
+
+	sw->Close();
+}
+
+// Delete Sended Team
+void writeToFile::deleteSendedTeam(String^ sended, String^ fileName) {
+	StreamReader^ din = File::OpenText(fileName);
+	ArrayList^ lines = gcnew ArrayList;
+	String^ str;
+
+	while ((str = din->ReadLine()) != nullptr) {
+		array<String^>^ words;
+		words = str->Split('#');
+		if (str != "" && words[0] != sended) lines->Add(str);
+	}
+
+	din->Close();
+
+	StreamWriter^ sw = gcnew StreamWriter(fileName);
+
+	for (int i = 0; i < lines->Count; i++) {
+		sw->WriteLine(lines[i]);
+	}
+
+	sw->Close();
+
+	sended = sended + ".txt";
+
+	File::Delete(sended);
+}
+
+// Change Sended Players No And Power Values
+void writeToFile::changePlayerInfo(ArrayList^ info) {
+	String^ teamName = info[0]->ToString();
+	String^ name = info[1]->ToString();
+	String^ no = info[2]->ToString();
+	String^ guc = info[3]->ToString();
+
+	String^ fileName = teamName + ".txt";
+	String^ key = "#";
+
+	StreamReader^ din = File::OpenText(fileName);
+	ArrayList^ lines = gcnew ArrayList;
+	String^ str;
+
+	while ((str = din->ReadLine()) != nullptr) {
+		array<String^>^ words;
+		words = str->Split('#');
+		if (str != "" && words[1] != name) lines->Add(str);
+		else if (words[1] == name) {
+			str = no + key + name + key + words[2] + key + guc + key + words[4];
+			lines->Add(str);
+		}
+	}
+
+	din->Close();
+
+	StreamWriter^ sw = gcnew StreamWriter(fileName);
+
+	for (int i = 0; i < lines->Count; i++) {
+		sw->WriteLine(lines[i]);
+	}
+
+	sw->Close();
+
+	changeTeamInfo(teamName);
+}
+
+// Change Sended Teams Information
+void writeToFile::changeTeamInfo(String^ teamName) {
+	readFromFile read;
+	String^ fileName1 = teamName + ".txt";
+	String^ fileName2 = "Takimlar.txt";
+	String^ fileName3 = "Teams Info.txt";	
+
+	ArrayList^ teamLinevalues = gcnew ArrayList;
+	ArrayList^ teamLine = gcnew ArrayList;
+	ArrayList^ teamInfo1 = read.read(fileName1);
+	ArrayList^ teamInfo2 = read.read(fileName2);
+
+	int age = 0, teamP = 0, dP = 0,
+		oP = 0, fP = 0, count = 0;
+	String^ key = "#";
+
+	// Team Name - Manager - 4-4-2 - Old - Power - Def Power - Min Power - Forvet Power
+	// Footballer = No # Name # Place # Power # Age
+	//Trabzon Spor#Abdullah Avci#4 - 4 - 2#28#71#68#66#81
+
+	// Add Team name - Manager - 4-4-2
+	for (int i = 0; i < teamInfo2->Count; i++) {
+		if (teamInfo2[i]->ToString() == teamName) {
+			teamLinevalues->Add(teamInfo2[i]);
+			teamLinevalues->Add(teamInfo2[i + 1]);
+			teamLinevalues->Add(teamInfo2[i + 2]);
+			break;
+		}
+	}
+
+	// Ort Old
+	count = 0;
+	for (int i = 0; i < teamInfo1->Count / 5; i++) {
+		age += Convert::ToInt32(teamInfo1[i * 5 + 4]);
+		count++;
+	}
+
+	age /= count;
+	teamLinevalues->Add(age);
+
+	// Ort Power
+	count = 0;
+	for (int i = 0; i < teamInfo1->Count / 5; i++) {
+		teamP += Convert::ToInt32(teamInfo1[i * 5 + 3]);
+		count++;
+	}
+
+	teamP /= count;
+	teamLinevalues->Add(teamP);
+
+	// Ort Def
+	count = 0;
+	for (int i = 0; i < teamInfo1->Count / 5; i++) {
+		if (teamInfo1[i * 5 + 2]->ToString() == "DEF") {
+			dP += Convert::ToInt32(teamInfo1[i * 5 + 3]);
+			count++;
+		}
+	}
+
+	dP /= count;
+	teamLinevalues->Add(dP);
+
+	// Ort Mid
+	count = 0;
+	for (int i = 0; i < teamInfo1->Count / 5; i++) {
+		if (teamInfo1[i * 5 + 2]->ToString() == "ORT") {
+			oP += Convert::ToInt32(teamInfo1[i * 5 + 3]);
+			count++;
+		}
+	}
+
+	oP /= count;
+	teamLinevalues->Add(oP);
+
+	// Ort For
+	count = 0;
+	for (int i = 0; i < teamInfo1->Count / 5; i++) {
+		if (teamInfo1[i * 5 + 2]->ToString() == "FOR") {
+			fP += Convert::ToInt32(teamInfo1[i * 5 + 3]);
+			count++;
+		}
+	}
+
+	fP /= count;
+	teamLinevalues->Add(fP);
+
+	StreamReader^ din = File::OpenText(fileName3);
+	ArrayList^ lines = gcnew ArrayList;
+	String^ str;
+
+	while ((str = din->ReadLine()) != nullptr) {
+		array<String^>^ words;
+		words = str->Split('#');
+		if (str != "" && words[0] != teamName) lines->Add(str);
+		else if (words[0] == teamName) {
+			str = teamLinevalues[0] + key + teamLinevalues[1] + key + teamLinevalues[2] + key + teamLinevalues[3] +
+				key + teamLinevalues[4] + key + teamLinevalues[5] + key + teamLinevalues[6] + key + teamLinevalues[7];
+			lines->Add(str);
+		}
+	}
+
+	din->Close();
+
+	StreamWriter^ sw = gcnew StreamWriter(fileName3);
+
+	for (int i = 0; i < lines->Count; i++) {
+		sw->WriteLine(lines[i]);
+	}
+
+	sw->Close();
+}
+
+///////////////////////// CreateTeam.h
+
+#pragma once
+using namespace System;
+using namespace System::Collections;
+
+class Create {
+public:
+	void createTeam(ArrayList^);
+private:
+	void createFile(String^);
+	ArrayList^ createNameList();
+	ArrayList^ createRandomNo();
+	ArrayList^ createRandomAge();
+	ArrayList^ createRandomPower();
+	int* createTactic(String^);
+	ArrayList^ suffleArrayList(ArrayList^);
+	void createTeamInfo(String^);
+};
+
+
+//////////////////////////// CreateTeam.cpp
+
+#include "CreateTeam.h"
+#include "Read.h"
+#include "Write.h"
+
+using namespace System;
+using namespace System::IO;
+using namespace System::Collections;
+
+// teamInfo[] = {Team name, Team Manager, Team Tactic}
+// Footballer = No # Name # Place # Power # Age
+void Create::createTeam(ArrayList^ teamInfo) {
+	writeToFile write;
+	ArrayList^ teamList = gcnew ArrayList;
+	ArrayList^ nameList = createNameList();
+	ArrayList^ noList = createRandomNo();
+	ArrayList^ ageList = createRandomAge();
+	ArrayList^ powerList = createRandomPower();
+	String^ fileName = teamInfo[0]->ToString() + ".txt";
+	createFile(fileName);
+
+	int* tactic = createTactic(teamInfo[2]->ToString());
+	int k = tactic[0], d = tactic[1], 
+		o = tactic[2], f = tactic[0];
+	int size = 11;
+
+	String^ place, ^name, ^no, ^age, ^power, ^full;
+	String^ keyWord = "#";
+
+	for (int i = 0; i < size; i++) {
+		//Select role
+		if (k != 0) {
+			place = "KAL";
+			--k;
+		}
+		else if (d != 0) {
+			place = "DEF";
+			--d;
+		}
+		else if (o != 0) {
+			place = "ORT";
+			--o;
+		}
+		else if (f != 0) {
+			place = "FOR";
+			--f;
+		}
+
+		name = nameList[i]->ToString();
+		no = noList[i]->ToString();
+		age = ageList[i]->ToString();
+		power = powerList[i]->ToString();
+
+		full = no + keyWord + name + keyWord + place + keyWord + power + keyWord + age;
+		teamList->Add(full);
+	}
+	
+	write.writePlayers(teamList, fileName);
+
+	createTeamInfo(teamInfo[0]->ToString());
+}
+
+// Create Txt File With Given Team Name
+void Create::createFile(String^ fileName) {
+
+	try {
+		FileStream^ fs = gcnew FileStream(fileName, FileMode::Create);
+		fs->Close();
+	}
+	catch (System::Exception^ pe) {
+		Console::WriteLine(pe->ToString());
+	}
+}
+
+// Create Random 11 Footballer Full Name
+ArrayList^ Create::createNameList() {
+	readFromFile readFile;
+
+	String^ fileName1 = "Isim.txt";
+	String^ fileName2 = "Soyisim.txt";
+
+	ArrayList^ nameList = readFile.read(fileName1);
+	ArrayList^ lastNameList = readFile.read(fileName2);
+	ArrayList^ totalNames = gcnew ArrayList;
+
+	String ^fullName;
+	int size = 11;
+
+	nameList = suffleArrayList(nameList);
+	lastNameList = suffleArrayList(lastNameList);
+
+	for (int i = 0; i < size; i++) {
+		fullName = nameList[i]->ToString() + " " + lastNameList[i]->ToString();
+		totalNames->Add(fullName);
+	}
+
+	return totalNames;
+}
+
+// Create Random 11 Footballer No
+ArrayList^ Create::createRandomNo() {
+	ArrayList^ noList = gcnew ArrayList;
+	ArrayList^ noValues = gcnew ArrayList;
+	int size = 11, check, noMin = 1, noMax = 100;
+
+	for (int i = noMin; i < noMax; i++) noValues->Add(i);
+
+	noValues = suffleArrayList(noValues);
+
+	for (int i = 0; i < size; i++) noList->Add(noValues[i]);
+
+	return noList;
+}
+
+// Create Random 11 Footballer Age
+ArrayList^ Create::createRandomAge() {
+	ArrayList^ ageList = gcnew ArrayList;
+	ArrayList^ ageValues = gcnew ArrayList;
+	int oldT = 0, oldTmax = 352, oldTmin = 275, 
+		oldMin = 18, oldMax = 37, size =11, old[11];
+
+	for (int i = oldMin; i < oldMax; i++) ageValues->Add(i);
+	
+	while (oldT < oldTmin || oldT > oldTmax) {
+		oldT = 0;
+		ageValues = suffleArrayList(ageValues);
+
+		for (int i = 0; i < size; i++) {
+			old[i] = Convert::ToInt32(ageValues[i]);
+			oldT += old[i];
+		}
+	}
+
+	for (int i = 0; i <size; i++) {
+		ageList->Add(old[i]);
+	}
+
+	return ageList;
+}
+
+// Create Random 11 Footballer Power
+ArrayList^ Create::createRandomPower() {
+	ArrayList^ powerList = gcnew ArrayList;
+	ArrayList^ powerValues = gcnew ArrayList;
+	int powerT = 0, powerTmin = 660, powerMin = 30, 
+		powerMax = 101, size = 11, power[11];
+
+	for (int i = powerMin; i < powerMax; i++) powerValues->Add(i);
+
+	while (powerT < powerTmin) {
+		powerT = 0;
+		powerValues = suffleArrayList(powerValues);
+
+		for (int i = 0; i < size; i++) {
+			power[i] = Convert::ToInt32(powerValues[i]);
+			powerT += power[i];
+		}
+	}
+
+	for (int i = 0; i < size; i++) {
+		powerList->Add(power[i]);
+	}
+
+	return powerList;
+}
+
+// Create Tactic As Integer Values
+int* Create::createTactic(String^ tactic) {
+	//Tactic Example : 4-4-2 : D-O-F
+	int tactics[4];
+
+	tactics[0] = 1;                                          // Keeper
+	tactics[1] = Convert::ToInt32(tactic->Substring(0, 1));  // Def
+	tactics[2] = Convert::ToInt32(tactic->Substring(2, 1));  // Mid
+	tactics[3] = Convert::ToInt32(tactic->Substring(4, 1));  // For
+
+	return tactics;
+}
+
+// Suffle Given ArrayList
+ArrayList^ Create::suffleArrayList(ArrayList^ given) {	
+	Random^ rnd = gcnew Random();
+	int size = given->Count;
+
+	while (size > 1) {
+		int k = rnd->Next(size--);
+		String^ t = given[size]->ToString();
+		given[size] = given[k];
+		given[k] = t;
+	}
+
+	return given;
+}
+
+// Create Teams Information
+void Create::createTeamInfo(String^ team) {
+	readFromFile read;
+	writeToFile write;
+
+	String^ fileName1 = team + ".txt";
+	String^ fileName2 = "Takimlar.txt";
+	String^ fileName3 = "Teams Info.txt";
+
+	ArrayList^ teamLinevalues = gcnew ArrayList;
+	ArrayList^ teamLine = gcnew ArrayList;
+	ArrayList^ teamInfo1 = read.read(fileName1);
+	ArrayList^ teamInfo2 = read.read(fileName2);
+	int age = 0, teamP = 0, dP = 0,
+		oP = 0, fP = 0, count = 0;
+	String^ key = "#";
+
+	// Team Name - Manager - 4-4-2 - Old - Power - Def Power - Min Power - Forvet Power
+	// Footballer = No # Name # Place # Power # Age
+	//Trabzon Spor#Abdullah Avci#4 - 4 - 2#28#71#68#66#81
+
+	// Add Team name - Manager - 4-4-2
+	for (int i = 0; i < teamInfo2->Count; i++) {
+		if (teamInfo2[i]->ToString() == team) {
+			teamLinevalues->Add(teamInfo2[i]);
+			teamLinevalues->Add(teamInfo2[i + 1]);
+			teamLinevalues->Add(teamInfo2[i + 2]);
+			break;
+		}
+	}
+
+	// Ort Old
+	count = 0;
+	for (int i = 0; i < teamInfo1->Count / 5; i++) {
+		age += Convert::ToInt32(teamInfo1[i * 5 + 4]);
+		count++;
+	}
+
+	age /= count;
+	teamLinevalues->Add(age);
+
+	// Ort Power
+	count = 0;
+	for (int i = 0; i < teamInfo1->Count / 5; i++) {
+		teamP += Convert::ToInt32(teamInfo1[i * 5 + 3]);
+		count++;
+	}
+
+	teamP /= count;
+	teamLinevalues->Add(teamP);
+
+	// Ort Def
+	count = 0;
+	for (int i = 0; i < teamInfo1->Count / 5; i++) {
+		if (teamInfo1[i * 5 + 2]->ToString() == "DEF") {
+			dP += Convert::ToInt32(teamInfo1[i * 5 + 3]);
+			count++;
+		}
+	}
+
+	dP /= count;
+	teamLinevalues->Add(dP);
+
+	// Ort Mid
+	count = 0;
+	for (int i = 0; i < teamInfo1->Count / 5; i++) {
+		if (teamInfo1[i * 5 + 2]->ToString() == "ORT") {
+			oP += Convert::ToInt32(teamInfo1[i * 5 + 3]);
+			count++;
+		}
+	}
+
+	oP /= count;
+	teamLinevalues->Add(oP);
+
+	// Ort For
+	count = 0;
+	for (int i = 0; i < teamInfo1->Count / 5; i++) {
+		if (teamInfo1[i * 5 + 2]->ToString() == "FOR") {
+			fP += Convert::ToInt32(teamInfo1[i * 5 + 3]);
+			count++;
+		}
+	}
+
+	fP /= count;
+	teamLinevalues->Add(fP);
+
+	teamLine->Add(teamLinevalues[0] + key + teamLinevalues[1] + key + teamLinevalues[2] + key + teamLinevalues[3] +
+		key + teamLinevalues[4] + key + teamLinevalues[5] + key + teamLinevalues[6] + key + teamLinevalues[7]);
+
+	write.writeEndOfFile(teamLine, fileName3);
+}
+
+
+
+///////////////////////////////// Calculator.h
+
+#pragma once
+using namespace System;
+using namespace System::Collections;
+
+class Calculator {
+public: 
+	void createFixture(ArrayList^);
+	void createScorBoard(ArrayList^);
+	ArrayList^ teamPlayerDetail();
+	ArrayList^ teamVsPlayerDetail(String^);
+	ArrayList^ teamVsTeamNames();
+	ArrayList^ teamDetailMiniBox();
+	ArrayList^ vsDetailMiniBox();
+	ArrayList^ teamFixture();
+	ArrayList^ teamList(ArrayList^);
+	ArrayList^ tags(ArrayList^);
+	ArrayList^ createMatrix(ArrayList^);
+	ArrayList^ nextWeek(ArrayList^);
+	ArrayList^ createScore(ArrayList^);
+};
+
+
+//////////////////////////////////// Calculator.cpp
+
+#include "Calculator.h"
+#include "Read.h"
+#include "Write.h"
+#include "Struct.h"
+
+using namespace System;
+using namespace System::IO;
+using namespace System::Collections;
+
+// Create Fixture For Each Week
+void Calculator::createFixture(ArrayList^ teams) {
+	writeToFile write;
+	ArrayList^ fixture = gcnew ArrayList;
+	ArrayList^ finalFixture = gcnew ArrayList;
+	ArrayList^ sended = gcnew ArrayList;
+	ArrayList^ matches = createMatrix(teams);
+	int size = teams->Count;
+	if (size % 2 != 0) size -= 1;
+	else size -= 2;
+
+	for (int i = 0; i < matches->Count; i++) {
+		fixture->Add(matches[i]);
+	}
+
+	for (int i = 0; i < size; i++) {
+		matches = nextWeek(matches);
+
+		for (int j = 0; j < matches->Count; j++) {
+			fixture->Add(matches[j]);
+		}
+	}
+
+	for (int i = 0; i < fixture->Count / 2; i++) {
+		sended->Clear();
+		if (fixture[i * 2]->ToString() == "" || fixture[i * 2 + 1]->ToString() == "") {
+			if(fixture[i * 2]->ToString() == "") finalFixture->Add(" ");
+			else finalFixture->Add(fixture[i * 2]);
+			finalFixture->Add(" ");
+			finalFixture->Add(" ");
+			if (fixture[i * 2 + 1]->ToString() == "") finalFixture->Add(" ");
+			else finalFixture->Add(fixture[i * 2 + 1]);
+		}
+		else {
+			sended->Add(fixture[i * 2]);
+			sended->Add(fixture[i * 2 + 1]);
+
+			sended = createScore(sended);
+
+			for (int j = 0; j < sended->Count; j++) {
+				finalFixture->Add(sended[j]);
+			}
+		}
+	}
+
+	write.writeFixture(finalFixture);
+	createScorBoard(finalFixture);
+}
+
+// Create Matrix For Teams To Use Fixture Algorithm
+ArrayList^ Calculator::createMatrix(ArrayList^ match) {
+	ArrayList^ fixture = gcnew ArrayList;
+	ArrayList^ team1 = gcnew ArrayList;
+	ArrayList^ team2 = gcnew ArrayList;
+	int size = match->Count;
+
+	if (size % 2 != 0) {
+		size /= 2;
+		for (int i = 0; i < size; i++) {
+			team1->Add(match[i * 2]);
+			team2->Add(match[i * 2 + 1]);
+		}
+		team1->Add(match[size * 2]);
+		team2->Add("");
+	}
+	else {
+		size /= 2;
+		for (int i = 0; i < size; i++) {
+			team1->Add(match[i * 2]);
+			team2->Add(match[i * 2 + 1]);
+		}
+	}
+
+	size = match->Count;
+	if (size % 2 != 0) {
+		size = (size / 2) + 1;
+	}
+	else size /= 2;
+
+	for (int i = 0; i < size; i++) {
+		fixture->Add(team1[i]);
+		fixture->Add(team2[i]);
+	}
+	return fixture;
+}
+
+// Create Next Week Matches
+ArrayList^ Calculator::nextWeek(ArrayList^ match) {
+	ArrayList^ fixture = gcnew ArrayList;
+	ArrayList^ team1 = gcnew ArrayList;
+	ArrayList^ team2 = gcnew ArrayList;
+	ArrayList^ t1copy = gcnew ArrayList;
+	ArrayList^ t2copy = gcnew ArrayList;
+	int size = match->Count / 2;
+
+	for (int i = 0; i < size; i++) {
+		team1->Add(match[i * 2]);
+		t1copy->Add(match[i * 2]);
+		team2->Add(match[i * 2 + 1]);
+		t2copy->Add(match[i * 2 + 1]);
+	}
+	
+	for (int i = 1; i < size - 1; i++) {
+		team1[i + 1] = t1copy[i];
+	}
+
+	for (int i = size - 1; i > 1; i--) {
+		team2[i - 1] = t2copy[i];
+	}
+	
+	team1[0] = t1copy[0];
+	team1[1] = t2copy[0];
+	team2[0] = t2copy[1];
+	team2[size - 1] = t1copy[size - 1];
+	
+	for (int i = 0; i < size; i++) {
+		fixture->Add(team1[i]);
+		fixture->Add(team2[i]);
+	}
+	
+	return fixture;
+}
+
+// Create Tags For The Teams
+ArrayList^ Calculator::tags(ArrayList^ teams) {
+	ArrayList^ tags = gcnew ArrayList;
+	String^ tag;
+
+	for (int i = 0; i < teams->Count / 3; i++) {
+		int count = 2;
+		int check = 0;
+
+		while (check == 0) {
+			tag = teams[i * 3]->ToString()->Substring(0, count);
+			check = 1;
+			for (int j = 0; j < tags->Count; j++) {
+				if (tag == tags[j]->ToString()) {
+					check = 0;
+				}
+			}
+			count++;
+		}
+
+		tags->Add(tag);
+	}
+
+	return tags;
+}
+
+// Return Only Team Names From Given ArrayList
+ArrayList^ Calculator::teamList(ArrayList^ teams) {
+	ArrayList^ teamNames = gcnew ArrayList;
+
+	for (int i = 0; i < teams->Count / 3; i++) {
+		teamNames->Add(teams[i * 3]);
+	}
+
+	return teamNames;
+}
+
+// Calculate And Return Match Scores
+ArrayList^ Calculator::createScore(ArrayList^ teams) {
+	readFromFile read;
+	ArrayList^ score = gcnew ArrayList;
+	String^ t1name = teams[0]->ToString();
+	String^ t2name = teams[1]->ToString();
+	ArrayList^ teamInfos = read.read("Teams Info.txt");
+
+	int A_DPO, A_OSPO, A_FPO, A_TOP, 
+		B_DPO, B_OSPO, B_FPO, B_TOP, 
+		A_GOL, B_GOL;
+
+	Random^ rnd = gcnew Random;
+
+	A_GOL = rnd->Next(0, 6);
+	B_GOL = rnd->Next(0, 6);
+
+	for (int i = 0; i<teamInfos->Count / 8; i++) {
+		if (teamInfos[i * 8]->ToString() == t1name) {
+			A_TOP = Convert::ToInt32(teamInfos[i * 8 + 4]);
+			A_DPO = Convert::ToInt32(teamInfos[i * 8 + 5]);
+			A_OSPO = Convert::ToInt32(teamInfos[i * 8 + 6]);
+			A_FPO = Convert::ToInt32(teamInfos[i * 8 + 7]);			
+		}
+		if (teamInfos[i * 8]->ToString() == t2name) {
+			B_TOP = Convert::ToInt32(teamInfos[i * 8 + 4]);
+			B_DPO = Convert::ToInt32(teamInfos[i * 8 + 5]);
+			B_OSPO = Convert::ToInt32(teamInfos[i * 8 + 6]);
+			B_FPO = Convert::ToInt32(teamInfos[i * 8 + 7]);
+		}
+	}
+
+	//Calculate end scor as needed.
+	if (A_FPO > B_FPO) ++A_GOL;
+	if (A_FPO < B_FPO) ++B_GOL;
+
+	if (A_DPO > B_DPO) --B_GOL;
+	if (A_DPO < B_DPO) --A_GOL;
+
+	if (A_OSPO > B_OSPO) {
+		++A_GOL;
+		--B_GOL;
+	}
+	if (A_OSPO < B_OSPO) {
+		++B_GOL;
+		--A_GOL;
+	}
+
+	if (A_TOP > B_TOP) {
+		if (rnd->Next(0, 1) == 1) ++A_GOL;
+		else --B_GOL;
+	}
+
+	if (A_TOP < B_TOP) {
+		if (rnd->Next(0, 1) == 1) ++B_GOL;
+		else --A_GOL;
+	}
+
+	//Team score can not be lover then 0
+	if (A_GOL < 0) A_GOL = 0;
+	if (B_GOL < 0) B_GOL = 0;
+
+	score->Add(t1name);
+	score->Add(A_GOL);
+	score->Add(B_GOL);
+	score->Add(t2name);
+
+	return score;
+}
+
+// Calculate Scor Board
+void Calculator::createScorBoard(ArrayList^ teams) {
+	readFromFile read;
+	Calculator calculate;
+	writeToFile write;
+	Teams dataValues;	
+	ArrayList^ teamNames = gcnew ArrayList;
+	ArrayList^ board = gcnew ArrayList;
+	String^ fileName = "Takimlar.txt";
+	String^ t1name, ^t2name;
+	int s1, s2, size;
+
+	teamNames = read.read(fileName);
+	teamNames = calculate.teamList(teamNames);
+
+	size = teamNames->Count;
+
+	array<Teams>^ data = gcnew array<Teams>(size);
+
+	for (int i=0; i<size; i++) {
+		data[i].name = teamNames[i]->ToString();
+	}
+
+	for (int i=0; i<teams->Count / 4; i++) {
+		t1name = teams[i * 4]->ToString();
+		t2name = teams[i * 4 + 3]->ToString();
+		if ((t1name == " " || t2name == " ") || (t1name == "" || t2name == ""));			
+		else {
+			s1 = Convert::ToInt32(teams[i * 4 + 1]);
+			s2 = Convert::ToInt32(teams[i * 4 + 2]);
+
+			for (int j = 0; j < size; j++) {
+				if (data[j].name == t1name) {
+					data[j].o += 1;
+					data[j].a += s1;
+					data[j].y += s2;
+
+					if (s1 > s2) {
+						data[j].g += 1;
+						data[j].puan += 3;
+					}
+					else if (s1 == s2) {
+						data[j].b += 1;
+						data[j].puan += 1;
+					}
+					else if (s1 < s2) {
+						data[j].m += 1;
+					}
+				}
+				if (data[j].name == t2name) {
+					data[j].o += 1;
+					data[j].a += s2;
+					data[j].y += s1;
+
+					if (s2 > s1) {
+						data[j].g += 1;
+						data[j].puan += 3;
+					}
+					else if (s1 == s2) {
+						data[j].b += 1;
+						data[j].puan += 1;
+					}
+					else if (s2 < s1) {
+						data[j].m += 1;
+					}
+				}
+			}
+		}
+	}
+
+	for (int i=0; i<size; i++) {
+		data[i].av = data[i].a - data[i].y;
+	}
+
+	int bigest = 0;
+	int place = 0;
+
+	for (int i=0; i<size; i++) {
+		place = 0;
+		bigest = 0;
+		for (int j = 0; j < size; j++) {
+			if (data[j].puan > bigest) {
+				bigest = data[j].puan;
+				place = j;
+			}
+			else if (data[j].puan == bigest && bigest != 0) {
+				if (data[j].av > data[place].av) {
+					bigest = data[j].puan;
+					place = j;
+				}
+			}
+		}
+		board->Add(i+1);
+		board->Add(data[place].name);
+		board->Add(data[place].o);
+		board->Add(data[place].g);
+		board->Add(data[place].b);
+		board->Add(data[place].m);
+		board->Add(data[place].a);
+		board->Add(data[place].y);
+		board->Add(data[place].av);
+		board->Add(data[place].puan);
+
+		data[place].puan = -1;
+	}
+
+	write.writeScorBoard(board);
+
+	delete data, dataValues;
+}
+
+// Return Team Detail Mini Boxes
+ArrayList^ Calculator::teamDetailMiniBox() {
+	readFromFile read;
+	String^ fileName = "Saved Info.txt", ^fileName2 = "Teams Info.txt", ^fileName3 = "Takimlar.txt";
+	ArrayList^ returnValue = gcnew ArrayList;
+	ArrayList^ value = read.read(fileName);
+	String^ teamName = value[0]->ToString();
+
+	value = read.read(fileName2);
+
+	// Team Name - Manager - 4-4-2 - Old - Power - Tag
+
+	for (int i = 0; i < value->Count / 8; i++) {
+		if (value[i * 8]->ToString() == teamName) {
+			for (int j = 0; j < 5; j++) {
+				returnValue->Add(value[i * 8 + j]);
+			}
+		}
+	}
+
+	value = read.read(fileName3);
+
+	for (int i = 0; i < value->Count / 3; i++) {
+		if (value[i * 3]->ToString() == teamName) {
+			value = tags(value);
+			returnValue->Add(value[i]);             //add tag
+			break;
+		}
+	}
+
+	return returnValue;
+}
+
+// Return Team Detail Player List
+ArrayList^ Calculator::teamPlayerDetail() {
+	readFromFile read;
+	String^ fileName = "Saved Info.txt";
+	ArrayList^ value = read.read(fileName);
+	String^ teamName = value[0]->ToString();
+	fileName = teamName + ".txt";
+	value = read.read(fileName);
+
+	return value;
+}
+
+// Return Given Teams Fixture
+ArrayList^ Calculator::teamFixture() {
+	readFromFile read;
+	String^ fileName = "Saved Info.txt";
+	ArrayList^ value = read.read(fileName);
+	String^ teamName = value[0]->ToString();
+	fileName = "Fiksture.txt";
+	value = read.read(fileName);
+	ArrayList^ returnValue = gcnew ArrayList;
+
+	for (int i = 0; i < value->Count / 4; i++) {
+		int win = 0;
+		String^ t1 = value[i * 4]->ToString();
+		String^ t2 = value[i * 4 + 3]->ToString();
+		if ((t1 == teamName || t2 == teamName) && (t1 != " " && t2 != " ")) {
+			int s1 = Convert::ToInt32(value[i * 4 + 1]);
+			int s2 = Convert::ToInt32(value[i * 4 + 2]);
+
+			if (t1 == teamName) {
+				if (s1 > s2) win = 3;
+				else if (s1 == s2) win = 2;
+				else if (s1 < s2) win = 1;
+			}
+			else if (t2 == teamName) {
+				if (s2 > s1) win = 3;
+				else if (s2 == s1) win = 2;
+				else if (s2 < s1) win = 1;
+			}
+			returnValue->Add(t1);
+			returnValue->Add(s1);
+			returnValue->Add(s2);
+			returnValue->Add(t2);
+			returnValue->Add(win);
+		}
+	}
+	// t1 / scor t1 / scor t2 / t2 / win-draw-lose
+	return returnValue;
+}
+
+// Retur VS Detail Mini Boxes
+ArrayList^ Calculator::vsDetailMiniBox() {
+	readFromFile read;
+	ArrayList^ returnValue = gcnew ArrayList;
+	String^ fileName = "Saved Info.txt", ^fileName2 = "Teams Info.txt";
+	ArrayList^ value = read.read(fileName);
+	String^ teamName1 = value[0]->ToString();
+	String^ teamName2 = value[3]->ToString();
+	int s1 = Convert::ToInt32(value[1]);
+	int s2 = Convert::ToInt32(value[2]);
+
+	// Team Name - Manager - 4-4-2 - Old - Power - Def Power - Min Power - Forvet Power
+
+	value = read.read(fileName2);
+
+	// Team Name - Manager - 4-4-2 - Old - Power - Scor
+
+	for (int i = 0; i < value->Count / 8; i++) {
+		if (value[i * 8]->ToString() == teamName1) {
+			for (int j = 0; j < 5; j++) {
+				returnValue->Add(value[i * 8 + j]);
+			}
+			break;
+		}		
+	}
+
+	returnValue->Add(s1);
+
+	for (int i = 0; i < value->Count / 8; i++) {
+		if (value[i * 8]->ToString() == teamName2) {
+			for (int j = 0; j < 5; j++) {
+				returnValue->Add(value[i * 8 + j]);
+			}
+			break;
+		}		
+	}
+
+	returnValue->Add(s2);
+
+	return returnValue;
+}
+
+// Return VS team Name List
+ArrayList^ Calculator::teamVsTeamNames() {
+	readFromFile read;
+	String^ fileName = "Saved Info.txt";
+	ArrayList^ value = read.read(fileName);
+	
+	return value;
+}
+
+// Return VS team Player List
+ArrayList^ Calculator::teamVsPlayerDetail(String^ name) {
+	readFromFile read;
+	name = name + ".txt";
+	ArrayList^ value = read.read(name);
+	return value;
+}
